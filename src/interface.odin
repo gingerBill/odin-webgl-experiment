@@ -13,7 +13,7 @@ foreign import "gl"
 foreign env {
 	write :: proc(fd: u32, p: []byte) ---
 	alert :: proc(s: string) ---
-	trap :: proc() -> ! ---
+	trap  :: proc() -> ! ---
 	abort :: proc() -> ! ---
 	
 	@(link_name="evaluate")

@@ -18,14 +18,14 @@ IsWebGL2Supported :: proc "c" () -> bool {
 foreign webgl2 {
 	/* Buffer objects */
 	CopyBufferSubData :: proc(readTarget, writeTarget: Enum, readOffset, writeOffset: int, size: int) ---	
-	GetBufferSubData :: proc(target: Enum, srcByteOffset: int, dst_buffer: []byte, dstOffset: int = 0, length: int = 0) ---
+	GetBufferSubData  :: proc(target: Enum, srcByteOffset: int, dst_buffer: []byte, dstOffset: int = 0, length: int = 0) ---
 	
 	/* Framebuffer objects */
-	BlitFramebuffer :: proc(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1: i32, mask: u32, filter: Enum) ---
-	FramebufferTextureLayer :: proc(target: Enum, attachment: Enum, texture: Texture, level: i32, layer: i32) ---
-	InvalidateFramebuffer :: proc(target: Enum, attachments: []Enum) ---
+	BlitFramebuffer          :: proc(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1: i32, mask: u32, filter: Enum) ---
+	FramebufferTextureLayer  :: proc(target: Enum, attachment: Enum, texture: Texture, level: i32, layer: i32) ---
+	InvalidateFramebuffer    :: proc(target: Enum, attachments: []Enum) ---
 	InvalidateSubFramebuffer :: proc(target: Enum, attachments: []Enum, x, y, width, height: i32) ---
-	ReadBuffer :: proc(src: Enum) ---
+	ReadBuffer               :: proc(src: Enum) ---
 	
 	/* Renderbuffer objects */
 	RenderbufferStorageMultisample :: proc(target: Enum, samples: i32, internalformat: Enum, width, height: i32) ---
