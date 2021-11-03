@@ -2,6 +2,8 @@ package webgl
 
 foreign import "gl"
 
+Enum :: distinct u32
+
 Buffer       :: distinct u32
 Framebuffer  :: distinct u32
 Program      :: distinct u32
@@ -14,42 +16,42 @@ foreign gl {
 	DrawingBufferWidth  :: proc() -> i32 ---
 	DrawingBufferHeight :: proc() -> i32 ---
 	
-	GetError :: proc() -> u32 ---
+	GetError :: proc() -> Enum ---
 	
 	IsExtensionSupported :: proc(name: string) -> bool ---
 
-	ActiveTexture      :: proc(x: u32) ---
+	ActiveTexture      :: proc(x: Enum) ---
 	AttachShader       :: proc(program: Program, shader: Shader) ---
 	BindAttribLocation :: proc(program: Program, index: i32, name: string) ---
-	BindBuffer         :: proc(target: u32, buffer: Buffer) ---
-	BindFramebuffer    :: proc(target: u32, buffer: Buffer) ---
-	BindTexture        :: proc(target: u32, texture: Texture) ---
+	BindBuffer         :: proc(target: Enum, buffer: Buffer) ---
+	BindFramebuffer    :: proc(target: Enum, buffer: Buffer) ---
+	BindTexture        :: proc(target: Enum, texture: Texture) ---
 	BlendColor         :: proc(red, green, blue, alpha: f32) ---
-	BlendEquation      :: proc(mode: u32) ---
-	BlendFunc          :: proc(sfactor, dfactor: u32) ---
-	BlendFuncSeparate  :: proc(srcRGB, dstRGB, srcAlpha, dstAlpha: u32) ---
+	BlendEquation      :: proc(mode: Enum) ---
+	BlendFunc          :: proc(sfactor, dfactor: Enum) ---
+	BlendFuncSeparate  :: proc(srcRGB, dstRGB, srcAlpha, dstAlpha: Enum) ---
 	
-	BufferData    :: proc(target: u32, size: int, data: rawptr, usage: u32) ---
-	BufferSubData :: proc(target: u32, offset: uintptr, size: int, data: rawptr) ---
+	BufferData    :: proc(target: Enum, size: int, data: rawptr, usage: Enum) ---
+	BufferSubData :: proc(target: Enum, offset: uintptr, size: int, data: rawptr) ---
 
-	Clear         :: proc(bits: u32) ---
+	Clear         :: proc(bits: Enum) ---
 	ClearColor    :: proc(r, g, b, a: f32) ---
-	ClearDepth    :: proc(x: u32) ---
-	ClearStencil  :: proc(x: u32) ---
+	ClearDepth    :: proc(x: Enum) ---
+	ClearStencil  :: proc(x: Enum) ---
 	ClearMask     :: proc(r, g, b, a: bool) ---
 	CompileShader :: proc(shader: Shader) ---
 	
-	CompressedTexImage2D    :: proc(target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, imageSize: int, data: rawptr) ---
-	CompressedTexSubImage2D :: proc(target: u32, level: i32, xoffset, yoffset, width, height: i32, format: u32, imageSize: int, data: rawptr) ---
+	CompressedTexImage2D    :: proc(target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, imageSize: int, data: rawptr) ---
+	CompressedTexSubImage2D :: proc(target: Enum, level: i32, xoffset, yoffset, width, height: i32, format: Enum, imageSize: int, data: rawptr) ---
 
 	CreateBuffer       :: proc() -> Buffer ---
 	CreateFramebuffer  :: proc() -> Framebuffer ---
 	CreateProgram      :: proc() -> Program ---
 	CreateRenderbuffer :: proc() -> Renderbuffer ---
-	CreateShader       :: proc(shaderType: u32) -> Shader ---
+	CreateShader       :: proc(shaderType: Enum) -> Shader ---
 	CreateTexture      :: proc() -> Texture ---
 	
-	CullFace :: proc(mode: u32) ---
+	CullFace :: proc(mode: Enum) ---
 	
 	DeleteBuffer       :: proc(buffer: Buffer) ---
 	DeleteFramebuffer  :: proc(framebuffer: Framebuffer) ---
@@ -58,31 +60,31 @@ foreign gl {
 	DeleteShader       :: proc(shader: Shader) ---
 	DeleteTexture      :: proc(texture: Texture) ---
 	
-	DepthFunc                :: proc(func: u32) ---
+	DepthFunc                :: proc(func: Enum) ---
 	DepthMask                :: proc(flag: bool) ---
 	DepthRange               :: proc(zNear, zFar: f32) ---
 	DetachShader             :: proc(program: Program, shader: Shader) ---
-	Disable                  :: proc(cap: u32) ---
+	Disable                  :: proc(cap: Enum) ---
 	DisableVertexAttribArray :: proc(index: i32) ---
-	DrawArrays               :: proc(mode: u32, first, count: int) ---
-	DrawElements             :: proc(mode: u32, count: int, type: u32, indices: rawptr) ---
+	DrawArrays               :: proc(mode: Enum, first, count: int) ---
+	DrawElements             :: proc(mode: Enum, count: int, type: Enum, indices: rawptr) ---
 	
-	Enable                  :: proc(cap: u32) ---
+	Enable                  :: proc(cap: Enum) ---
 	EnableVertexAttribArray :: proc(index: i32) ---
 	Finish                  :: proc() ---
 	Flush                   :: proc() ---
-	FramebufferRenderbuffer :: proc(target, attachment, renderbufertarget: u32, renderbuffer: Renderbuffer) ---
-	FramebufferTexture2D    :: proc(target, attachment, textarget: u32, texture: Texture, level: i32) ---
-	FrontFace               :: proc(mode: u32) ---
+	FramebufferRenderbuffer :: proc(target, attachment, renderbufertarget: Enum, renderbuffer: Renderbuffer) ---
+	FramebufferTexture2D    :: proc(target, attachment, textarget: Enum, texture: Texture, level: i32) ---
+	FrontFace               :: proc(mode: Enum) ---
 	
-	GenerateMipmaps :: proc(target: u32) ---
+	GenerateMipmaps :: proc(target: Enum) ---
 	
 	GetAttribLocation     :: proc(program: Program, name: string) -> i32 ---
 	GetUniformLocation    :: proc(program: Program, name: string) -> i32 ---
-	GetVertexAttribOffset :: proc(index: i32, pname: u32) -> uintptr ---
-	GetProgramParameter   :: proc(program: Program, pname: u32) -> i32 ---
+	GetVertexAttribOffset :: proc(index: i32, pname: Enum) -> uintptr ---
+	GetProgramParameter   :: proc(program: Program, pname: Enum) -> i32 ---
 
-	Hint :: proc(target: u32, mode: u32) ---
+	Hint :: proc(target: Enum, mode: Enum) ---
 	
 	IsBuffer       :: proc(buffer: Buffer) -> bool ---
 	IsFramebuffer  :: proc(framebuffer: Framebuffer) -> bool ---
@@ -93,27 +95,27 @@ foreign gl {
 	
 	LineWidth     :: proc(width: f32) ---
 	LinkProgram   :: proc(program: Program) ---
-	PixelStorei   :: proc(pname: u32, param: i32) ---
+	PixelStorei   :: proc(pname: Enum, param: i32) ---
 	PolygonOffset :: proc(factor: f32, units: f32) ---
 	
-	ReadnPixels         :: proc(x, y, width, height: i32, format: u32, type: u32, bufSize: int, data: rawptr) ---
-	RenderbufferStorage :: proc(target: u32, internalformat: u32, width, height: i32) ---
+	ReadnPixels         :: proc(x, y, width, height: i32, format: Enum, type: Enum, bufSize: int, data: rawptr) ---
+	RenderbufferStorage :: proc(target: Enum, internalformat: Enum, width, height: i32) ---
 	SampleCoverage      :: proc(value: f32, invert: bool) ---
 	Scissor             :: proc(x, y, width, height: i32) ---
 	ShaderSource        :: proc(shader: Shader, strings: []string) ---
 	
-	StencilFunc         :: proc(func: u32, ref: i32, mask: u32) ---
-	StencilFuncSeparate :: proc(face, func: u32, ref: i32, mask: u32) ---
+	StencilFunc         :: proc(func: Enum, ref: i32, mask: u32) ---
+	StencilFuncSeparate :: proc(face, func: Enum, ref: i32, mask: u32) ---
 	StencilMask         :: proc(mask: u32) ---
-	StencilMaskSeparate :: proc(face: u32, mask: u32) ---
-	StencilOp           :: proc(fail, zfail, zpass: u32) ---
-	StencilOpSeparate   :: proc(face, fail, zfail, zpass: u32)	 ---
+	StencilMaskSeparate :: proc(face: Enum, mask: u32) ---
+	StencilOp           :: proc(fail, zfail, zpass: Enum) ---
+	StencilOpSeparate   :: proc(face, fail, zfail, zpass: Enum)	 ---
 	
-	TexImage2D    :: proc(target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, format, type: u32, size: int, data: rawptr) ---
-	TexSubImage2D :: proc(target: u32, level: i32, xoffset, yoffset, width, height: i32, format, type: u32, size: int, data: rawptr) ---
+	TexImage2D    :: proc(target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, format, type: Enum, size: int, data: rawptr) ---
+	TexSubImage2D :: proc(target: Enum, level: i32, xoffset, yoffset, width, height: i32, format, type: Enum, size: int, data: rawptr) ---
 	
-	TexParameterf :: proc(target, pname: u32, param: f32) ---
-	TexParameteri :: proc(target, pname: u32, param: i32) ---
+	TexParameterf :: proc(target, pname: Enum, param: f32) ---
+	TexParameteri :: proc(target, pname: Enum, param: i32) ---
 	
 	Uniform1f :: proc(location: i32, v0: f32) ---
 	Uniform2f :: proc(location: i32, v0, v1: f32) ---
@@ -132,7 +134,7 @@ foreign gl {
 	VertexAttrib2f      :: proc(index: i32, x, y: f32) ---
 	VertexAttrib3f      :: proc(index: i32, x, y, z: f32) ---
 	VertexAttrib4f      :: proc(index: i32, x, y, z, w: f32) ---
-	VertexAttribPointer :: proc(index: i32, size: int, type: u32, normalized: bool, stride: int, ptr: uintptr) ---
+	VertexAttribPointer :: proc(index: i32, size: int, type: Enum, normalized: bool, stride: int, ptr: uintptr) ---
 	
 	Viewport :: proc(x, y, w, h: i32) ---
 }
@@ -176,11 +178,11 @@ UniformMatrix4fv :: proc "c" (location: i32, m: mat4) {
 	_UniformMatrix4fv(location, &value[0])
 }
 
-GetShaderiv :: proc "c" (shader: Shader, pname: u32) -> (p: i32) {
+GetShaderiv :: proc "c" (shader: Shader, pname: Enum) -> (p: i32) {
 	@(default_calling_convention="c")
 	foreign gl {
 		@(link_name="GetShaderiv")
-		_GetShaderiv :: proc "c" (shader: Shader, pname: u32, p: ^i32) ---
+		_GetShaderiv :: proc "c" (shader: Shader, pname: Enum, p: ^i32) ---
 	}
 	_GetShaderiv(shader, pname, &p)
 	return
@@ -213,27 +215,27 @@ GetShaderInfoLog :: proc "c" (shader: Shader, buf: []byte) -> string {
 
 
 
-BufferDataSlice :: proc "c" (target: u32, slice: $S/[]$E, usage: u32) {
+BufferDataSlice :: proc "c" (target: Enum, slice: $S/[]$E, usage: Enum) {
 	BufferData(target, len(slice)*size_of(E), raw_data(slice), usage)
 }
-BufferSubDataSlice :: proc "c" (target: u32, offset: uintptr, slice: $S/[]$E) {
+BufferSubDataSlice :: proc "c" (target: Enum, offset: uintptr, slice: $S/[]$E) {
 	BufferSubData(target, offset, len(slice)*size_of(E), raw_data(slice), usage)
 }
 
-CompressedTexImage2DSlice :: proc "c" (target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, slice: $S/[]$E) {
+CompressedTexImage2DSlice :: proc "c" (target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, slice: $S/[]$E) {
 	CompressedTexImage2DSlice(target, level, internalformat, width, height, border, len(slice)*size_of(E), raw_data(slice))
 }
-CompressedTexSubImage2DSlice :: proc "c" (target: u32, level: i32, xoffset, yoffset, width, height: i32, format: u32, slice: $S/[]$E) {
+CompressedTexSubImage2DSlice :: proc "c" (target: Enum, level: i32, xoffset, yoffset, width, height: i32, format: Enum, slice: $S/[]$E) {
 	CompressedTexSubImage2DSlice(target, level, level, xoffset, yoffset, width, height, format, len(slice)*size_of(E), raw_data(slice))
 }
 
-ReadPixelsSlice :: proc "c" (x, y, width, height: i32, format: u32, type: u32, slice: $S/[]$E) {
+ReadPixelsSlice :: proc "c" (x, y, width, height: i32, format: Enum, type: Enum, slice: $S/[]$E) {
 	ReadnPixels(x, y, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }
 
-TexImage2DSlice :: proc "c" (target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, format, type: u32, slice: $S/[]$E) {
+TexImage2DSlice :: proc "c" (target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, format, type: Enum, slice: $S/[]$E) {
 	TexImage2D(target, level, internalformat, width, height, border, format, type, len(slice)*size_of(E), raw_data(slice))
 }
-TexSubImage2DSlice :: proc "c" (target: u32, level: i32, xoffset, yoffset, width, height: i32, format, type: u32, slice: $S/[]$E) {
+TexSubImage2DSlice :: proc "c" (target: Enum, level: i32, xoffset, yoffset, width, height: i32, format, type: Enum, slice: $S/[]$E) {
 	TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }
