@@ -114,3 +114,66 @@ foreign webgl2 {
 	IsVertexArray     :: proc(vertexArray: VertexArrayObject) -> bool ---
 	BindVertexArray   :: proc(vertexArray: VertexArrayObject) ---	
 }
+
+Uniform1uiv :: proc "c" (location: i32, v: u32) {
+	Uniform1ui(location, v)
+}
+Uniform2uiv :: proc "c" (location: i32, v: uvec2) {
+	Uniform2ui(location, v.x, v.y)
+}
+Uniform3uiv :: proc "c" (location: i32, v: uvec3) {
+	Uniform3ui(location, v.x, v.y, v.z)
+}
+Uniform4uiv :: proc "c" (location: i32, v: uvec4) {
+	Uniform4ui(location, v.x, v.y, v.z, v.w)
+}
+
+UniformMatrix3x2fv :: proc "c" (location: i32, m: mat3x2) {
+	foreign webgl2 {
+		_UniformMatrix3x2fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix3x2fv(location, &array[0])
+}
+UniformMatrix4x2fv :: proc "c" (location: i32, m: mat4x2) {
+	foreign webgl2 {
+		_UniformMatrix4x2fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix4x2fv(location, &array[0])
+}
+UniformMatrix2x3fv :: proc "c" (location: i32, m: mat2x3) {
+	foreign webgl2 {
+		_UniformMatrix2x3fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix2x3fv(location, &array[0])
+}
+UniformMatrix4x3fv :: proc "c" (location: i32, m: mat4x3) {
+	foreign webgl2 {
+		_UniformMatrix4x3fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix4x3fv(location, &array[0])
+}
+UniformMatrix2x4fv :: proc "c" (location: i32, m: mat2x4) {
+	foreign webgl2 {
+		_UniformMatrix2x4fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix2x4fv(location, &array[0])
+}
+UniformMatrix3x4fv :: proc "c" (location: i32, m: mat3x4) {
+	foreign webgl2 {
+		_UniformMatrix3x4fv :: proc "c" (location: i32, addr: [^]f32) ---
+	}
+	array := matrix_flatten(m)
+	_UniformMatrix3x4fv(location, &array[0])
+}
+
+VertexAttribI4iv :: proc "c" (index: i32, v: ivec4) {
+	VertexAttribI4i(index, v.x, v.y, v.z, v.w)
+}
+VertexAttribI4uiv :: proc "c" (index: i32, v: uvec4) {
+	VertexAttribI4ui(index, v.x, v.y, v.z, v.w)
+}

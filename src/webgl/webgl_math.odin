@@ -27,6 +27,14 @@ mat2x2 :: mat2
 mat3x3 :: mat3
 mat4x4 :: mat4
 
+// Should this be renamed the other way around?
+mat3x2 :: distinct matrix[2, 3]f32
+mat4x2 :: distinct matrix[2, 4]f32
+mat2x3 :: distinct matrix[3, 2]f32
+mat4x3 :: distinct matrix[3, 4]f32
+mat2x4 :: distinct matrix[4, 2]f32
+mat3x4 :: distinct matrix[4, 3]f32
+
 vec2 :: distinct [2]f32
 vec3 :: distinct [3]f32
 vec4 :: distinct [4]f32
@@ -35,7 +43,13 @@ ivec2 :: distinct [2]i32
 ivec3 :: distinct [3]i32
 ivec4 :: distinct [4]i32
 
+uvec2 :: distinct [2]u32
+uvec3 :: distinct [3]u32
+uvec4 :: distinct [4]u32
+
+
 quat :: distinct quaternion128
+
 
 foreign math {
 	@(link_name="cos")         cos_f32         :: proc "c" (x: f32)    -> f32 ---
