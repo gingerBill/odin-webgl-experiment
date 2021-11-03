@@ -47,9 +47,11 @@ uvec2 :: distinct [2]u32
 uvec3 :: distinct [3]u32
 uvec4 :: distinct [4]u32
 
+bvec2 :: distinct [2]bool
+bvec3 :: distinct [3]bool
+bvec4 :: distinct [4]bool
 
 quat :: distinct quaternion128
-
 
 foreign math {
 	@(link_name="cos")         cos_f32         :: proc "c" (x: f32)    -> f32 ---
@@ -296,6 +298,7 @@ exp2_vec4 :: proc "c" (x: vec4) -> vec4 { return {exp2(x.x), exp2(x.y), exp2(x.z
 
 sign :: proc{
 	sign_i32,
+	sign_u32,
 	sign_f32,
 	sign_vec2,
 	sign_vec3,
@@ -303,14 +306,21 @@ sign :: proc{
 	sign_ivec2,
 	sign_ivec3,
 	sign_ivec4,
+	sign_uvec2,
+	sign_uvec3,
+	sign_uvec4,
 }
 sign_i32 :: proc "c" (x: i32) -> i32 { return -1 if x < 0 else +1 if x > 0 else 0 }
+sign_u32 :: proc "c" (x: u32) -> u32 { return +1 if x > 0 else 0 }
 sign_vec2 :: proc "c" (x: vec2) -> vec2 { return {sign(x.x), sign(x.y)} }
 sign_vec3 :: proc "c" (x: vec3) -> vec3 { return {sign(x.x), sign(x.y), sign(x.z)} }
 sign_vec4 :: proc "c" (x: vec4) -> vec4 { return {sign(x.x), sign(x.y), sign(x.z), sign(x.w)} }
 sign_ivec2 :: proc "c" (x: ivec2) -> ivec2 { return {sign(x.x), sign(x.y)} }
 sign_ivec3 :: proc "c" (x: ivec3) -> ivec3 { return {sign(x.x), sign(x.y), sign(x.z)} }
 sign_ivec4 :: proc "c" (x: ivec4) -> ivec4 { return {sign(x.x), sign(x.y), sign(x.z), sign(x.w)} }
+sign_uvec2 :: proc "c" (x: uvec2) -> uvec2 { return {sign(x.x), sign(x.y)} }
+sign_uvec3 :: proc "c" (x: uvec3) -> uvec3 { return {sign(x.x), sign(x.y), sign(x.z)} }
+sign_uvec4 :: proc "c" (x: uvec4) -> uvec4 { return {sign(x.x), sign(x.y), sign(x.z), sign(x.w)} }
 
 floor :: proc{
 	floor_f32,
@@ -383,6 +393,7 @@ degrees_vec4 :: proc "c" (radians: vec4) -> vec4 { return radians * 360.0 / TAU 
 
 min :: proc{
 	min_i32,  
+	min_u32,  
 	min_f32,  
 	min_vec2, 
 	min_vec3, 
@@ -390,8 +401,12 @@ min :: proc{
 	min_ivec2,
 	min_ivec3,
 	min_ivec4,
+	min_uvec2,
+	min_uvec3,
+	min_uvec4,
 }
 min_i32  :: proc "c" (x, y: i32) -> i32   { return builtin.min(x, y) }
+min_u32  :: proc "c" (x, y: u32) -> u32   { return builtin.min(x, y) }
 min_f32  :: proc "c" (x, y: f32) -> f32   { return builtin.min(x, y) }
 min_vec2 :: proc "c" (x, y: vec2) -> vec2 { return {min(x.x, y.x), min(x.y, y.y)} }
 min_vec3 :: proc "c" (x, y: vec3) -> vec3 { return {min(x.x, y.x), min(x.y, y.y), min(x.z, y.z)} }
@@ -399,9 +414,14 @@ min_vec4 :: proc "c" (x, y: vec4) -> vec4 { return {min(x.x, y.x), min(x.y, y.y)
 min_ivec2 :: proc "c" (x, y: ivec2) -> ivec2 { return {min(x.x, y.x), min(x.y, y.y)} }
 min_ivec3 :: proc "c" (x, y: ivec3) -> ivec3 { return {min(x.x, y.x), min(x.y, y.y), min(x.z, y.z)} }
 min_ivec4 :: proc "c" (x, y: ivec4) -> ivec4 { return {min(x.x, y.x), min(x.y, y.y), min(x.z, y.z), min(x.w, y.w)} }
+min_uvec2 :: proc "c" (x, y: uvec2) -> uvec2 { return {min(x.x, y.x), min(x.y, y.y)} }
+min_uvec3 :: proc "c" (x, y: uvec3) -> uvec3 { return {min(x.x, y.x), min(x.y, y.y), min(x.z, y.z)} }
+min_uvec4 :: proc "c" (x, y: uvec4) -> uvec4 { return {min(x.x, y.x), min(x.y, y.y), min(x.z, y.z), min(x.w, y.w)} }
+
 
 max :: proc{
 	max_i32,  
+	max_u32,  
 	max_f32,  
 	max_vec2, 
 	max_vec3, 
@@ -409,8 +429,12 @@ max :: proc{
 	max_ivec2,
 	max_ivec3,
 	max_ivec4,
+	max_uvec2,
+	max_uvec3,
+	max_uvec4,
 }
 max_i32  :: proc "c" (x, y: i32) -> i32   { return builtin.max(x, y) }
+max_u32  :: proc "c" (x, y: u32) -> u32   { return builtin.max(x, y) }
 max_f32  :: proc "c" (x, y: f32) -> f32   { return builtin.max(x, y) }
 max_vec2 :: proc "c" (x, y: vec2) -> vec2 { return {max(x.x, y.x), max(x.y, y.y)} }
 max_vec3 :: proc "c" (x, y: vec3) -> vec3 { return {max(x.x, y.x), max(x.y, y.y), max(x.z, y.z)} }
@@ -418,11 +442,15 @@ max_vec4 :: proc "c" (x, y: vec4) -> vec4 { return {max(x.x, y.x), max(x.y, y.y)
 max_ivec2 :: proc "c" (x, y: ivec2) -> ivec2 { return {max(x.x, y.x), max(x.y, y.y)} }
 max_ivec3 :: proc "c" (x, y: ivec3) -> ivec3 { return {max(x.x, y.x), max(x.y, y.y), max(x.z, y.z)} }
 max_ivec4 :: proc "c" (x, y: ivec4) -> ivec4 { return {max(x.x, y.x), max(x.y, y.y), max(x.z, y.z), max(x.w, y.w)} }
+max_uvec2 :: proc "c" (x, y: uvec2) -> uvec2 { return {max(x.x, y.x), max(x.y, y.y)} }
+max_uvec3 :: proc "c" (x, y: uvec3) -> uvec3 { return {max(x.x, y.x), max(x.y, y.y), max(x.z, y.z)} }
+max_uvec4 :: proc "c" (x, y: uvec4) -> uvec4 { return {max(x.x, y.x), max(x.y, y.y), max(x.z, y.z), max(x.w, y.w)} }
 
 
 
 clamp :: proc{
-	clamp_i32,  
+	clamp_i32, 
+	clamp_u32, 
 	clamp_f32,  
 	clamp_vec2, 
 	clamp_vec3, 
@@ -430,8 +458,12 @@ clamp :: proc{
 	clamp_ivec2,
 	clamp_ivec3,
 	clamp_ivec4,
+	clamp_uvec2,
+	clamp_uvec3,
+	clamp_uvec4,
 }
 clamp_i32  :: proc "c" (x, y, z: i32) -> i32   { return builtin.clamp(x, y, z) }
+clamp_u32  :: proc "c" (x, y, z: u32) -> u32   { return builtin.clamp(x, y, z) }
 clamp_f32  :: proc "c" (x, y, z: f32) -> f32   { return builtin.clamp(x, y, z) }
 clamp_vec2 :: proc "c" (x, y, z: vec2) -> vec2 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y)} }
 clamp_vec3 :: proc "c" (x, y, z: vec3) -> vec3 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y), clamp(x.z, y.z, z.z)} }
@@ -439,10 +471,13 @@ clamp_vec4 :: proc "c" (x, y, z: vec4) -> vec4 { return {clamp(x.x, y.x, z.x), c
 clamp_ivec2 :: proc "c" (x, y, z: ivec2) -> ivec2 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y)} }
 clamp_ivec3 :: proc "c" (x, y, z: ivec3) -> ivec3 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y), clamp(x.z, y.z, z.z)} }
 clamp_ivec4 :: proc "c" (x, y, z: ivec4) -> ivec4 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y), clamp(x.z, y.z, z.z), clamp(x.w, y.w, z.w)} }
-
+clamp_uvec2 :: proc "c" (x, y, z: uvec2) -> uvec2 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y)} }
+clamp_uvec3 :: proc "c" (x, y, z: uvec3) -> uvec3 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y), clamp(x.z, y.z, z.z)} }
+clamp_uvec4 :: proc "c" (x, y, z: uvec4) -> uvec4 { return {clamp(x.x, y.x, z.x), clamp(x.y, y.y, z.y), clamp(x.z, y.z, z.z), clamp(x.w, y.w, z.w)} }
 
 saturate :: proc{
 	saturate_i32,
+	saturate_u32,
 	saturate_f32,
 	saturate_vec2,
 	saturate_vec3,
@@ -450,8 +485,12 @@ saturate :: proc{
 	saturate_ivec2,
 	saturate_ivec3,
 	saturate_ivec4,
+	saturate_uvec2,
+	saturate_uvec3,
+	saturate_uvec4,
 }
 saturate_i32  :: proc "c" (x, y, z: i32) -> i32   { return builtin.clamp(x, 0, 1) }
+saturate_u32  :: proc "c" (x, y, z: u32) -> u32   { return builtin.clamp(x, 0, 1) }
 saturate_f32  :: proc "c" (x, y, z: f32) -> f32   { return builtin.clamp(x, 0, 1) }
 saturate_vec2 :: proc "c" (x, y, z: vec2) -> vec2 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1)} }
 saturate_vec3 :: proc "c" (x, y, z: vec3) -> vec3 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1), builtin.clamp(x.z, 0, 1)} }
@@ -459,6 +498,9 @@ saturate_vec4 :: proc "c" (x, y, z: vec4) -> vec4 { return {builtin.clamp(x.x, 0
 saturate_ivec2 :: proc "c" (x, y, z: ivec2) -> ivec2 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1)} }
 saturate_ivec3 :: proc "c" (x, y, z: ivec3) -> ivec3 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1), builtin.clamp(x.z, 0, 1)} }
 saturate_ivec4 :: proc "c" (x, y, z: ivec4) -> ivec4 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1), builtin.clamp(x.z, 0, 1), builtin.clamp(x.w, 0, 1)} }
+saturate_uvec2 :: proc "c" (x, y, z: uvec2) -> uvec2 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1)} }
+saturate_uvec3 :: proc "c" (x, y, z: uvec3) -> uvec3 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1), builtin.clamp(x.z, 0, 1)} }
+saturate_uvec4 :: proc "c" (x, y, z: uvec4) -> uvec4 { return {builtin.clamp(x.x, 0, 1), builtin.clamp(x.y, 0, 1), builtin.clamp(x.z, 0, 1), builtin.clamp(x.w, 0, 1)} }
 
 
 mix :: proc{
@@ -498,6 +540,7 @@ step_vec4 :: proc "c" (edge, x: vec4) -> vec4 { return {step(edge.x, x.x), step(
 
 abs :: proc{
 	abs_i32,
+	abs_u32,
 	abs_f32,
 	abs_vec2,
 	abs_vec3,
@@ -505,8 +548,12 @@ abs :: proc{
 	abs_ivec2,
 	abs_ivec3,
 	abs_ivec4,
+	abs_uvec2,
+	abs_uvec3,
+	abs_uvec4,
 }
 abs_i32  :: proc "c" (x: i32)  -> i32  { return builtin.abs(x) }
+abs_u32  :: proc "c" (x: u32)  -> u32  { return x }
 abs_f32  :: proc "c" (x: f32)  -> f32  { return builtin.abs(x) }
 abs_vec2 :: proc "c" (x: vec2) -> vec2 { return {abs(x.x), abs(x.y)} }
 abs_vec3 :: proc "c" (x: vec3) -> vec3 { return {abs(x.x), abs(x.y), abs(x.z)} }
@@ -514,9 +561,13 @@ abs_vec4 :: proc "c" (x: vec4) -> vec4 { return {abs(x.x), abs(x.y), abs(x.z), a
 abs_ivec2 :: proc "c" (x: ivec2) -> ivec2 { return {abs(x.x), abs(x.y)} }
 abs_ivec3 :: proc "c" (x: ivec3) -> ivec3 { return {abs(x.x), abs(x.y), abs(x.z)} }
 abs_ivec4 :: proc "c" (x: ivec4) -> ivec4 { return {abs(x.x), abs(x.y), abs(x.z), abs(x.w)} }
+abs_uvec2 :: proc "c" (x: uvec2) -> uvec2 { return x }
+abs_uvec3 :: proc "c" (x: uvec3) -> uvec3 { return x }
+abs_uvec4 :: proc "c" (x: uvec4) -> uvec4 { return x }
 
 dot :: proc{
 	dot_i32,
+	dot_u32,
 	dot_f32,
 	dot_vec2,
 	dot_vec3,
@@ -524,9 +575,13 @@ dot :: proc{
 	dot_ivec2,
 	dot_ivec3,
 	dot_ivec4,
+	dot_uvec2,
+	dot_uvec3,
+	dot_uvec4,
 	dot_quat,
 }
 dot_i32  :: proc "c" (a, b: i32)  -> i32 { return a*b }
+dot_u32  :: proc "c" (a, b: u32)  -> u32 { return a*b }
 dot_f32  :: proc "c" (a, b: f32)  -> f32 { return a*b }
 dot_vec2 :: proc "c" (a, b: vec2) -> f32 { return a.x*b.x + a.y*b.y }
 dot_vec3 :: proc "c" (a, b: vec3) -> f32 { return a.x*b.x + a.y*b.y + a.z*b.z }
@@ -534,6 +589,9 @@ dot_vec4 :: proc "c" (a, b: vec4) -> f32 { return a.x*b.x + a.y*b.y + a.z*b.z + 
 dot_ivec2 :: proc "c" (a, b: ivec2) -> i32 { return a.x*b.x + a.y*b.y }
 dot_ivec3 :: proc "c" (a, b: ivec3) -> i32 { return a.x*b.x + a.y*b.y + a.z*b.z }
 dot_ivec4 :: proc "c" (a, b: ivec4) -> i32 { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w }
+dot_uvec2 :: proc "c" (a, b: uvec2) -> u32 { return a.x*b.x + a.y*b.y }
+dot_uvec3 :: proc "c" (a, b: uvec3) -> u32 { return a.x*b.x + a.y*b.y + a.z*b.z }
+dot_uvec4 :: proc "c" (a, b: uvec4) -> u32 { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w }
 dot_quat :: proc "c" (a, b: quat) -> f32 { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w }
 
 length :: proc{
