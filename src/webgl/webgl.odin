@@ -110,10 +110,10 @@ foreign gl {
 	StencilOpSeparate   :: proc(face, fail, zfail, zpass: u32)	 ---
 	
 	TexImage2D    :: proc(target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, format, type: u32, size: int, data: rawptr) ---
-	TexParameterf :: proc(target, pname: u32, param: f32) ---
-	TexParameteri :: proc(target, pname: u32, param: i32) ---
 	TexSubImage2D :: proc(target: u32, level: i32, xoffset, yoffset, width, height: i32, format, type: u32, size: int, data: rawptr) ---
 	
+	TexParameterf :: proc(target, pname: u32, param: f32) ---
+	TexParameteri :: proc(target, pname: u32, param: i32) ---
 	
 	Uniform1f :: proc(location: i32, v0: f32) ---
 	Uniform2f :: proc(location: i32, v0, v1: f32) ---
@@ -212,6 +212,28 @@ GetShaderInfoLog :: proc "c" (shader: Shader, buf: []byte) -> string {
 }
 
 
+
 BufferDataSlice :: proc "c" (target: u32, slice: $S/[]$E, usage: u32) {
 	BufferData(target, len(slice)*size_of(E), raw_data(slice), usage)
+}
+BufferSubDataSlice :: proc "c" (target: u32, offset: uintptr, slice: $S/[]$E) {
+	BufferSubData(target, offset, len(slice)*size_of(E), raw_data(slice), usage)
+}
+
+CompressedTexImage2DSlice :: proc "c" (target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, slice: $S/[]$E) {
+	CompressedTexImage2DSlice(target, level, internalformat, width, height, border, len(slice)*size_of(E), raw_data(slice))
+}
+CompressedTexSubImage2DSlice :: proc "c" (target: u32, level: i32, xoffset, yoffset, width, height: i32, format: u32, slice: $S/[]$E) {
+	CompressedTexSubImage2DSlice(target, level, level, xoffset, yoffset, width, height, format, len(slice)*size_of(E), raw_data(slice))
+}
+
+ReadPixelsSlice :: proc(x, y, width, height: i32, format: u32, type: u32, slice: $S/[]$E) {
+	ReadnPixels(x, y, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
+}
+
+TexImage2DSlice :: proc "c" (target: u32, level: i32, internalformat: u32, width, height: i32, border: i32, format, type: u32, slice: $S/[]$E) {
+	TexImage2D(target, level, internalformat, width, height, border, format, type, len(slice)*size_of(E), raw_data(slice))
+}
+TexSubImage2DSlice :: proc "c" (target: u32, level: i32, xoffset, yoffset, width, height: i32, format, type: u32, slice: $S/[]$E) {
+	TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }
