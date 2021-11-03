@@ -1,6 +1,6 @@
 package webgl
 
-foreign import "gl"
+foreign import "webgl"
 
 Enum :: distinct u32
 
@@ -12,9 +12,12 @@ Shader       :: distinct u32
 Texture      :: distinct u32
 
 @(default_calling_convention="c")
-foreign gl {
+foreign webgl {
 	DrawingBufferWidth  :: proc() -> i32 ---
 	DrawingBufferHeight :: proc() -> i32 ---
+	
+	GetWebGLVersion :: proc(major, minor: ^i32) ---
+	GetESVersion :: proc(major, minor: ^i32) ---
 	
 	GetError :: proc() -> Enum ---
 	
@@ -43,6 +46,9 @@ foreign gl {
 	
 	CompressedTexImage2D    :: proc(target: Enum, level: i32, internalformat: Enum, width, height: i32, border: i32, imageSize: int, data: rawptr) ---
 	CompressedTexSubImage2D :: proc(target: Enum, level: i32, xoffset, yoffset, width, height: i32, format: Enum, imageSize: int, data: rawptr) ---
+	CopyTexImage2D          :: proc(target: Enum, level: i32, internalformat: Enum, x, y, width, height: i32, border: i32) ---
+	CopyTexSubImage2D       :: proc(target: Enum, level: i32, xoffset, yoffset, x, y: i32, width, height: i32) ---
+	
 
 	CreateBuffer       :: proc() -> Buffer ---
 	CreateFramebuffer  :: proc() -> Framebuffer ---
@@ -154,7 +160,7 @@ VertexAttrib3fv :: proc "c" (index: i32, v: vec3) { VertexAttrib3f(index, v.x, v
 VertexAttrib4fv :: proc "c" (index: i32, v: vec4) { VertexAttrib4f(index, v.x, v.y, v.z, v.w) }
 
 UniformMatrix2fv :: proc "c" (location: i32, m: mat2) {
-	foreign gl {
+	foreign webgl {
 		@(link_name="UniformMatrix2fv")
 		_UniformMatrix2fv :: proc "c" (location: i32, value: [^]f32) ---
 	}
@@ -162,7 +168,7 @@ UniformMatrix2fv :: proc "c" (location: i32, m: mat2) {
 	_UniformMatrix2fv(location, &value[0])
 }
 UniformMatrix3fv :: proc "c" (location: i32, m: mat3) {
-	foreign gl {
+	foreign webgl {
 		@(link_name="UniformMatrix3fv")
 		_UniformMatrix3fv :: proc "c" (location: i32, value: [^]f32) ---
 	}
@@ -170,7 +176,7 @@ UniformMatrix3fv :: proc "c" (location: i32, m: mat3) {
 	_UniformMatrix3fv(location, &value[0])
 }
 UniformMatrix4fv :: proc "c" (location: i32, m: mat4) {
-	foreign gl {
+	foreign webgl {
 		@(link_name="UniformMatrix4fv")
 		_UniformMatrix4fv :: proc "c" (location: i32, value: [^]f32) ---
 	}
@@ -180,7 +186,7 @@ UniformMatrix4fv :: proc "c" (location: i32, m: mat4) {
 
 GetShaderiv :: proc "c" (shader: Shader, pname: Enum) -> (p: i32) {
 	@(default_calling_convention="c")
-	foreign gl {
+	foreign webgl {
 		@(link_name="GetShaderiv")
 		_GetShaderiv :: proc "c" (shader: Shader, pname: Enum, p: ^i32) ---
 	}
@@ -191,7 +197,7 @@ GetShaderiv :: proc "c" (shader: Shader, pname: Enum) -> (p: i32) {
 
 GetProgramInfoLog :: proc "c" (program: Program, buf: []byte) -> string {
 	@(default_calling_convention="c")
-	foreign gl {
+	foreign webgl {
 		@(link_name="GetProgramInfoLog")
 		_GetProgramInfoLog :: proc "c" (program: Program, buf: []byte, length: ^int) ---
 	}
@@ -203,7 +209,7 @@ GetProgramInfoLog :: proc "c" (program: Program, buf: []byte) -> string {
 
 GetShaderInfoLog :: proc "c" (shader: Shader, buf: []byte) -> string {
 	@(default_calling_convention="c")
-	foreign gl {
+	foreign webgl {
 		@(link_name="GetShaderInfoLog")
 		_GetShaderInfoLog :: proc "c" (shader: Shader, buf: []byte, length: ^int) ---
 	}

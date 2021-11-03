@@ -106,6 +106,7 @@ const runWasm = async () => {
 	
 	let GL = {
 		ctx: null,
+		ctx_version: 1,
 		counter: 1,
 		lastError: 0,
 		buffers: [],
@@ -126,6 +127,11 @@ const runWasm = async () => {
 		transformFeedbacks: [],
 		syncs: [],
 		programInfos: {},
+		
+		
+		AssertWebGL2: () => {
+			assert(GL.ctx_version == 2.0);
+		},
 		getNewId: (table) => {
 			for (var ret = GL.counter++, i = table.length; i < ret; i++) {
 				table[i] = null;
@@ -232,7 +238,7 @@ const runWasm = async () => {
 			atanh:  (x) => Math.atanh(x),
 		},
 		
-		"gl": {
+		"webgl": {
 			DrawingBufferWidth:  () => GL.ctx.drawingBufferWidth,
 			DrawingBufferHeight: () => GL.ctx.drawingBufferHeight,
 			
@@ -247,6 +253,29 @@ const runWasm = async () => {
 				let err = GL.lastError;
 				GL.recordError(0);
 				return err;
+			},
+			
+			GetWebGLVersion: (major_ptr, minor_ptr) => {
+				let version = GL.ctx.getParameter(0x1F02);
+				if (version.indexOf("WebGL 2.0") !== -1) {
+					storeI32(major_ptr, 2);
+					storeI32(minor_ptr, 0);
+					return;
+				}
+				
+				storeI32(major_ptr, 1);
+				storeI32(minor_ptr, 0);
+			},
+			GetESVersion: (major_ptr, minor_ptr) => {
+				let version = GL.ctx.getParameter(0x1F02);
+				if (version.indexOf("OpenGL ES 3.0") !== -1) {
+					storeI32(major_ptr, 3);
+					storeI32(minor_ptr, 0);
+					return;
+				}
+				
+				storeI32(major_ptr, 2);
+				storeI32(minor_ptr, 0);
 			},
 			
 			
@@ -345,8 +374,8 @@ const runWasm = async () => {
 			CopyTexImage2D: (target, level, internalformat, x, y, width, height, border) => {
 				GL.ctx.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
 			},
-			CopyTexSubImage2D: (target, level, xoffset, yoffset, width, height) => {
-				GL.ctx.copyTexImage2D(target, level, xoffset, yoffset, width, height);
+			CopyTexSubImage2D: (target, level, xoffset, yoffset, x, y, width, height) => {
+				GL.ctx.copyTexImage2D(target, level, xoffset, yoffset, x, y, width, height);
 			},
 			
 			
@@ -657,7 +686,11 @@ const runWasm = async () => {
 			
 			
 			TexImage2D: (target, level, internalformat, width, height, border, format, type, size, data) => {
-				GL.ctx.texImage2D(target, level, internalformat, width, height, border, format, type, loadBytes(data, size));
+				if (data) {
+					GL.ctx.texImage2D(target, level, internalformat, width, height, border, format, type, loadBytes(data, size));
+				} else {
+					GL.ctx.texImage2D(target, level, internalformat, width, height, border, format, type, null);
+				}
 			},
 			TexParameterf: (target, pname, param) => {
 				GL.ctx.texParameterf(target, pname, param);
@@ -721,15 +754,432 @@ const runWasm = async () => {
 				GL.ctx.viewport(x, y, w, h);
 			},
 		},
+		
+		"webgl2": {
+			/* Buffer objects */
+			CopyBufferSubData: (readTarget, writeTarget, readOffset, writeOffset, size) => {
+				GL.AssertWebGL2();
+				GL.ctx.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+			},
+			GetBufferSubData: (target, srcByteOffset, dst_buffer_ptr, dst_buffer_len, dstOffset, length) => {
+				GL.AssertWebGL2();
+				GL.ctx.getBufferSubData(target, srcByteOffset, loadBytes(dst_buffer_ptr, dst_buffer_len), dstOffset, length);
+			},
+			
+			/* Framebuffer objects */
+			BlitFramebuffer: (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter) => {
+				GL.AssertWebGL2();
+				GL.ctx.glitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+			},
+			FramebufferTextureLayer: (target, attachment, texture, level, layer) => {
+				GL.AssertWebGL2();
+				GL.ctx.framebufferTextureLayer(target, attachment, GL.textures[texture], level, layer);
+			},
+			InvalidateFramebuffer: (target, attachments_ptr, attachments_len) => {
+				GL.AssertWebGL2();
+				let attachments = new Uint32Array(memory.buffer, attachments_ptr, attachments_len);
+				GL.ctx.invalidateFramebuffer(target, attachments);
+			},
+			InvalidateSubFramebuffer: (target, attachments_ptr, attachments_len, x, y, width, height) => {	
+				GL.AssertWebGL2();
+				let attachments = new Uint32Array(memory.buffer, attachments_ptr, attachments_len);
+				GL.ctx.invalidateSubFramebuffer(target, attachments, x, y, width, height);
+			},
+			ReadBuffer: (src) => {
+				GL.AssertWebGL2();
+				GL.ctx.readBuffer(src);
+			},
+			
+			/* Renderbuffer objects */
+			RenderbufferStorageMultisample: (target, samples, internalformat, width, height) => {
+				GL.AssertWebGL2();
+				GL.ctx.renderbufferStorageMultisample(target, samples, internalformat, width, height);
+			},
+			
+			/* Texture objects */
+			
+			TexStorage3D: (target, levels, internalformat, width, height, depth) => {
+				GL.AssertWebGL2();
+				GL.ctx.texStorage3D(target, level, internalformat, width, heigh, depth);
+			},
+			TexImage3D: (target, level, internalformat, width, height, depth, border, format, type, size, data) => {
+				GL.AssertWebGL2();
+				if (data) {
+					GL.ctx.texImage3D(target, level, internalformat, width, height, depth, border, format, type, loadBytes(data, size));
+				} else {
+					GL.ctx.texImage3D(target, level, internalformat, width, height, depth, border, format, type, null);
+				}
+			},
+			TexSubImage3D: (target, level, xoffset, yoffset, width, height, depth, format, type, size, data) => {
+				GL.AssertWebGL2();
+				GL.ctx.texSubImage3D(target, level, xoffset, yoffset, width, height, depth, format, type, loadBytes(data, size));
+			},
+			CompressedTexImage3D: (target, level, internalformat, width, height, depth, border, imageSize, data) => {
+				GL.AssertWebGL2();
+				if (data) {
+					GL.ctx.compressedTexImage3D(target, level, internalformat, width, height, depth, border, loadBytes(data, imageSize));
+				} else {
+					GL.ctx.compressedTexImage3D(target, level, internalformat, width, height, depth, border, null);
+				}
+			},
+			CompressedTexSubImage3D: (target, level, xoffset, yoffset, width, height, depth, format, imageSize, data) => {
+				GL.AssertWebGL2();
+				if (data) {
+					GL.ctx.compressedTexSubImage3D(target, level, xoffset, yoffset, width, height, depth, format, loadBytes(data, imageSize));
+				} else {
+					GL.ctx.compressedTexSubImage3D(target, level, xoffset, yoffset, width, height, depth, format, null);
+				}
+			},
+			
+			CopyTexSubImage3D: (target, level, xoffset, yoffset, zoffset, x, y, width, height) => {
+				GL.AssertWebGL2();
+				GL.ctx.copyTexImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+			},
+			
+			/* Programs and shaders */
+			GetFragDataLocation: (program, name_ptr, name_len) => {
+				GL.AssertWebGL2();
+				return GL.ctx.getFragDataLocation(GL.programs[program], loadString(name_ptr, name_len));
+			},
+			
+			/* Uniforms */
+			Uniform1ui: (location, v0) => {
+				GL.AssertWebGL2();
+				GL.ctx.uniform1ui(GL.uniforms[location], v0);
+			},
+			Uniform2ui: (location, v0, v1) => {
+				GL.AssertWebGL2();
+				GL.ctx.uniform2ui(GL.uniforms[location], v0, v1);
+			},
+			Uniform3ui: (location, v0, v1, v2) => {
+				GL.AssertWebGL2();
+				GL.ctx.uniform3ui(GL.uniforms[location], v0, v1, v2);
+			},
+			Uniform4ui: (location, v0, v1, v2, v3) => {
+				GL.AssertWebGL2();
+				GL.ctx.uniform4ui(GL.uniforms[location], v0, v1, v2, v3);
+			},
+			
+			UniformMatrix3x2fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 3*2);
+				GL.ctx.uniformMatrix3x2fv(GL.uniforms[location], false, array);
+			},
+			UniformMatrix4x2fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 4*2);
+				GL.ctx.uniformMatrix4x2fv(GL.uniforms[location], false, array);
+			},
+			UniformMatrix2x3fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 2*3);
+				GL.ctx.uniformMatrix2x3fv(GL.uniforms[location], false, array);
+			},
+			UniformMatrix4x3fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 4*3);
+				GL.ctx.uniformMatrix4x3fv(GL.uniforms[location], false, array);
+			},
+			UniformMatrix2x4fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 2*4);
+				GL.ctx.uniformMatrix2x4fv(GL.uniforms[location], false, array);
+			},
+			UniformMatrix3x4fv: (location, addr) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, addr, 3*4);
+				GL.ctx.uniformMatrix3x4fv(GL.uniforms[location], false, array);
+			},
+			
+			/* Vertex attribs */
+			VertexAttribI4i: (index, x, y, z, w) => {
+				GL.AssertWebGL2();
+				GL.ctx.vertexAttribI4i(index, x, y, z, w);
+			}, 
+			VertexAttribI4ui: (index, x, y, z, w) => {
+				GL.AssertWebGL2();
+				GL.ctx.vertexAttribI4ui(index, x, y, z, w);
+			}, 
+			VertexAttribIPointer: (index, size, type, stride, offset) => {
+				GL.AssertWebGL2();
+				GL.ctx.vertexAttribIPointer(index, size, type, stride, offset);
+			}, 
+			
+			/* Writing to the drawing buffer */
+			VertexAttribDivisor: (index, divisor) => {
+				GL.AssertWebGL2();
+				GL.ctx.vertexAttribDivisor(index, divisor);
+			},
+			DrawArraysInstanced: (mode, first, count, instanceCount) => {
+				GL.AssertWebGL2();
+				GL.ctx.drawArraysInstanced(mode, first, count, instanceCount);
+			},
+			DrawElementsInstanced: (mode, count, type, offset, instanceCount) => {
+				GL.AssertWebGL2();
+				GL.ctx.drawElementsInstanced(mode, count, type, offset, instanceCount);
+			},
+			DrawRangeElements: (mode, start, end, count, type, offset) => {
+				GL.AssertWebGL2();
+				GL.ctx.drawRangeElements(mode, start, end, count, type, offset);
+			},
+
+			/* Multiple Render Targets */
+			DrawBuffers: (buffers_ptr, buffers_len) => {
+				GL.AssertWebGL2();
+				let array = new Uint32Array(memory.buffer, buffers_ptr, buffers_len);
+				GL.ctx.drawBuffers(array);
+			},
+			ClearBufferfv: (buffer, drawbuffer, values_ptr, values_len) => {
+				GL.AssertWebGL2();
+				let array = new Float32Array(memory.buffer, values_ptr, values_len);
+				GL.ctx.clearBufferfv(buffer, drawbuffer, array);
+			},
+			ClearBufferiv: (buffer, drawbuffer, values_ptr, values_len) => {
+				GL.AssertWebGL2();
+				let array = new Int32Array(memory.buffer, values_ptr, values_len);
+				GL.ctx.clearBufferiv(buffer, drawbuffer, array);
+			},
+			ClearBufferuiv: (buffer, drawbuffer, values_ptr, values_len) => {
+				GL.AssertWebGL2();
+				let array = new Uint32Array(memory.buffer, values_ptr, values_len);
+				GL.ctx.clearBufferuiv(buffer, drawbuffer, array);
+			},
+			ClearBufferfi: (buffer, drawbuffer, depth, stencil) => {
+				GL.AssertWebGL2();
+				GL.ctx.clearBufferfi(buffer, drawbuffer, depth, stencil);
+			},
+
+			/* Query Objects */
+			CreateQuery: () => {
+				GL.AssertWebGL2();
+				let query = GL.ctx.createQuery();
+				let id = GL.getNewId(GL.queries);
+				query.name = id;
+				GL.queries[id] = query;
+				return id;	
+			},
+			DeleteQuery: (id) => {
+				GL.AssertWebGL2();
+				let obj = GL.querys[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteQuery(obj);
+					GL.querys[id] = null;
+				}
+			},
+			IsQuery: (query) => {
+				GL.AssertWebGL2();	
+				return GL.ctx.isQuery(GL.queries[query]);
+			},
+			BeginQuery: (target, query) => {
+				GL.AssertWebGL2();
+				GL.ctx.beginQuery(target, GL.queries[query])
+			},
+			EndQuery: (target) => {
+				GL.AssertWebGL2();
+				GL.ctx.endQuery(target);
+			},
+			GetQuery: (target, pname) => {
+				GL.AssertWebGL2();
+				let query = GL.ctx.getQuery(target, pname);
+				if (!query) {
+					return 0;
+				}
+				if (GL.queries.indexOf(query) !== -1) {
+					return query.name;
+				}
+				let id = GL.getNewId(GL.queries);
+				query.name = id;
+				GL.queries[id] = query;
+				return id;	
+			},
+			
+			/* Sampler Objects */
+			CreateSampler: () => {
+				GL.AssertWebGL2();
+				let sampler = GL.ctx.createSampler();
+				let id = GL.getNewId(GL.samplers);
+				sampler.name = id;
+				GL.samplers[id] = sampler;
+				return id;	
+			},
+			DeleteSampler: (id) => {
+				GL.AssertWebGL2();
+				let obj = GL.samplers[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteSampler(obj);
+					GL.samplers[id] = null;
+				}
+			},
+			IsSampler: (sampler) => {
+				GL.AssertWebGL2();	
+				return GL.ctx.isSampler(GL.samplers[sampler]);
+			},
+			BindSampler: (unit, sampler) => {
+				GL.AssertWebGL2();	
+				GL.ctx.bindSampler(unit, GL.samplers[Sampler]);
+			},
+			SamplerParameteri: (sampler, pname, param) => {
+				GL.AssertWebGL2();
+				GL.ctx.samplerParameteri(GL.samplers[sampler], pname, param);
+			},
+			SamplerParameterf: (sampler, pname, param) => {
+				GL.AssertWebGL2();
+				GL.ctx.samplerParameterf(GL.samplers[sampler], pname, param);
+			},
+			
+			/* Sync objects */
+			FenceSync: (condition, flags) => {
+				GL.AssertWebGL2();
+				let sync = GL.ctx.fenceSync(condition, flags);
+				let id = GL.getNewId(GL.syncs);
+				sync.name = id;
+				GL.syncs[id] = sync;
+				return id;	
+			},
+			IsSync: (sync) => {
+				GL.AssertWebGL2();	
+				return GL.ctx.isSync(GL.syncs[sync]);
+			},
+			DeleteSync: (id) => {
+				GL.AssertWebGL2();
+				let obj = GL.syncs[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteSampler(obj);
+					GL.syncs[id] = null;
+				}	
+			},
+			ClientWaitSync: (sync, flags, timeout) => {
+				GL.AssertWebGL2();
+				return GL.ctx.clientWaitSync(GL.syncs[sync], flags, timeout);
+			},
+			WaitSync: (sync, flags, timeout) => {
+				GL.AssertWebGL2();
+				GL.ctx.waitSync(GL.syncs[sync], flags, timeout)	;
+			},
+			
+			
+			/* Transform Feedback */
+			CreateTransformFeedback: () => {
+				GL.AssertWebGL2();
+				let transformFeedback = GL.ctx.createtransformFeedback();
+				let id = GL.getNewId(GL.transformFeedbacks);
+				transformFeedback.name = id;
+				GL.transformFeedbacks[id] = transformFeedback;
+				return id;	
+			},
+			DeleteTransformFeedback: (id)  => {
+				GL.AssertWebGL2();
+				let obj = GL.transformFeedbacks[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteTransformFeedback(obj);
+					GL.transformFeedbacks[id] = null;
+				}	
+			},
+			IsTransformFeedback: (tf) => {
+				GL.AssertWebGL2();
+				return GL.ctx.isTransformFeedback(GL.transformFeedbacks[tf]);
+			},
+			BindTransformFeedback: (target, tf) => {
+				GL.AssertWebGL2();
+				GL.ctx.bindTransformFeedback(target, GL.transformFeedbacks[tf]);
+			},
+			BeginTransformFeedback: (primitiveMode) => {
+				GL.AssertWebGL2();
+				GL.ctx.beginTransformFeedback(primitiveMode);
+			},
+			EndTransformFeedback: () => {
+				GL.AssertWebGL2();
+				GL.ctx.endTransformFeedback();
+			},
+			TransformFeedbackVaryings: (program, varyings_ptr, varyings_len, bufferMode) => {
+				GL.AssertWebGL2();
+				let varyings = [];
+				for (let i = 0; i < varyings_len; i++) {
+					let ptr = loadPtr(varyings_ptr + i*STRING_SIZE + 0*WORD_SIZE);
+					let len = loadPtr(varyings_ptr + i*STRING_SIZE + 1*WORD_SIZE);
+					varyings.push(loadString(ptr, len));
+				}
+				GL.ctx.transformFeedbackVaryings(GL.programs[program], varyings, bufferMode);
+			},
+			PauseTransformFeedback: () => {
+				GL.AssertWebGL2();
+				GL.ctx.pauseTransformFeedback();
+			},
+			ResumeTransformFeedback: () => {
+				GL.AssertWebGL2();
+				GL.ctx.resumeTransformFeedback();
+			},
+			
+			
+			/* Uniform Buffer Objects and Transform Feedback Buffers */
+			BindBufferBase: (target, index, buffer) => {
+				GL.AssertWebGL2();
+				GL.ctx.bindBufferBase(target, index, GL.buffers[buffer]);
+			},
+			BindBufferRange: (target, index, buffer, offset, size) => {
+				GL.AssertWebGL2();
+				GL.ctx.bindBufferRange(target, index, GL.buffers[buffer], offset, size);
+			},
+			GetUniformBlockIndex: (program, uniformBlockName_ptr, uniformBlockName_len) => {
+				GL.AssertWebGL2();
+				return GL.ctx.getUniformBlockIndex(GL.programs[program], loadString(uniformBlockName_ptr, uniformBlockName_len));
+			},
+			// any getActiveUniformBlockParameter(WebGLProgram program, GLuint uniformBlockIndex, GLenum pname);
+			GetActiveUniformBlockName: (program, uniformBlockIndex, buf_ptr, buf_len, length_ptr) => {
+				GL.AssertWebGL2();
+				let name = GL.ctx.getActiveUniformBlockName(GL.programs[program], uniformBlockIndex);
+				
+				let n = Math.min(buf_len, name.length);
+				name = name.substring(0, n);
+				loadBytes(buf_ptr, buf_len).set(new TextEncoder('utf-8').encode(name))
+				storeInt(length_ptr, n);
+			},
+			UniformBlockBinding: (program, uniformBlockIndex, uniformBlockBinding) => {
+				GL.AssertWebGL2();
+				GL.ctx.uniformBlockBinding(GL.programs[program], uniformBlockIndex, uniformBlockBinding);
+			},
+			
+			/* Vertex Array Objects */
+			CreateVertexArray: () => {
+				GL.AssertWebGL2();
+				let vao = GL.ctx.createVertexArray();
+				let id = GL.getNewId(GL.vaos);
+				vao.name = id;
+				GL.vaos[id] = vao;
+				return id;	
+			},
+			DeleteVertexArray: (id) => {
+				GL.AssertWebGL2();
+				let obj = GL.vaos[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteVertexArray(obj);
+					GL.vaos[id] = null;
+				}
+			},
+			IsVertexArray: (vertexArray) => {
+				GL.AssertWebGL2();	
+				return GL.ctx.isVertexArray(GL.vaos[vertexArray]);
+			},
+			BindVertexArray: (vertexArray) => {
+				GL.AssertWebGL2();	
+				GL.ctx.bindVertexArray(GL.vaos[vertexArray]);
+			},
+		},
 	};
 	
+	let context_settings = {antialias: false};
+	
 	const canvasElement = document.querySelector("canvas");
-	GL.ctx = canvasElement.getContext("webgl", {antialias: false});
+	GL.ctx = canvasElement.getContext("webgl2", context_settings) || canvasElement.getContext("webgl", context_settings);
 	if (!GL.ctx) {
 		document.getElementById('info').innerHTML = 'WebGL is not available.';
 		return;
 	}
-	
+	if (GL.ctx.getParameter(0x1F02).indexOf("WebGL 2.0") !== -1) {
+		GL.ctx_version = 2.0;
+	} else {
+		GL.ctx_version = 1.0;
+	}
 		
 	const response = await fetch("./main.wasm");
 	const file = await response.arrayBuffer();
