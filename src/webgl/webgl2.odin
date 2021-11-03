@@ -35,7 +35,7 @@ foreign webgl2 {
 	TexImage3D              :: proc(target: Enum, level: i32, internalformat: Enum, width, height, depth: i32, border: i32, format, type: Enum, size: int, data: rawptr) ---
 	TexSubImage3D           :: proc(target: Enum, level: i32, xoffset, yoffset, width, height, depth: i32, format, type: Enum, size: int, data: rawptr) ---
 	CompressedTexImage3D    :: proc(target: Enum, level: i32, internalformat: Enum, width, height, depth: i32, border: i32, imageSize: int, data: rawptr) ---
-	CompressedTexSubImage3D :: proc(target: Enum, level: i32, xoffset, yoffset:i32, width, height, depth: i32, format: Enum, imageSize: int, data: rawptr) ---
+	CompressedTexSubImage3D :: proc(target: Enum, level: i32, xoffset, yoffset: i32, width, height, depth: i32, format: Enum, imageSize: int, data: rawptr) ---
 	CopyTexSubImage3D       :: proc(target: Enum, level: i32, xoffset, yoffset, zoffset: i32, x, y, width, height: i32) ---
 	
 	/* Programs and shaders */
@@ -98,7 +98,6 @@ foreign webgl2 {
 	BindBufferBase            :: proc(target: Enum, index: i32, buffer: Buffer) ---
 	BindBufferRange           :: proc(target: Enum, index: i32, buffer: Buffer, offset: int, size: int) ---
 	GetUniformBlockIndex      :: proc(program: Program, uniformBlockName: string) -> i32 ---
-	GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte, length: ^int) ---
 	UniformBlockBinding       :: proc(program: Program, uniformBlockIndex: i32, uniformBlockBinding: i32) ---
 	
 	CreateVertexArray :: proc() -> VertexArrayObject ---
@@ -106,6 +105,16 @@ foreign webgl2 {
 	IsVertexArray     :: proc(vertexArray: VertexArrayObject) -> bool ---
 	BindVertexArray   :: proc(vertexArray: VertexArrayObject) ---	
 }
+
+GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte) -> string {
+	foreign webgl2 {
+		_GetActiveUniformBlockName :: proc(program: Program, uniformBlockIndex: i32, buf: []byte, length: ^int) ---
+	}
+	n: int
+	_GetActiveUniformBlockName(program, uniformBlockIndex, buf, &n)
+	return string(buf[:n])	
+}
+
 
 Uniform1uiv :: proc "c" (location: i32, v: u32) {
 	Uniform1ui(location, v)
