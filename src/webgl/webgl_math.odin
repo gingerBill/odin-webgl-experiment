@@ -712,6 +712,210 @@ scalarTripleProduct :: proc "c" (a, b, c: vec3) -> f32  { return dot(a, cross(b,
 vectorTripleProduct :: proc "c" (a, b, c: vec3) -> vec3 { return cross(a, cross(b, c)) }
 
 
+// Vector Relational Procedures
+
+lessThan :: proc{
+	lessThan_f32,
+	lessThan_i32,
+	lessThan_u32,
+	lessThan_vec2,
+	lessThan_ivec2,
+	lessThan_uvec2,
+	lessThan_vec3,
+	lessThan_ivec3,
+	lessThan_uvec3,
+	lessThan_vec4,
+	lessThan_ivec4,
+	lessThan_uvec4,
+}
+lessThan_f32   :: proc "c" (a, b: f32) -> bool { return a < b }
+lessThan_i32   :: proc "c" (a, b: i32) -> bool { return a < b }
+lessThan_u32   :: proc "c" (a, b: u32) -> bool { return a < b }
+lessThan_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x < b.x, a.y < b.y} }
+lessThan_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x < b.x, a.y < b.y} }
+lessThan_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x < b.x, a.y < b.y} }
+lessThan_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x < b.x, a.y < b.y, a.z < b.z} }
+lessThan_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x < b.x, a.y < b.y, a.z < b.z} }
+lessThan_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x < b.x, a.y < b.y, a.z < b.z} }
+lessThan_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w} }
+lessThan_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w} }
+lessThan_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w} }
+
+
+lessThanEqual :: proc{
+	lessThanEqual_f32,
+	lessThanEqual_i32,
+	lessThanEqual_u32,
+	lessThanEqual_vec2,
+	lessThanEqual_ivec2,
+	lessThanEqual_uvec2,
+	lessThanEqual_vec3,
+	lessThanEqual_ivec3,
+	lessThanEqual_uvec3,
+	lessThanEqual_vec4,
+	lessThanEqual_ivec4,
+	lessThanEqual_uvec4,
+}
+lessThanEqual_f32   :: proc "c" (a, b: f32) -> bool { return a <= b }
+lessThanEqual_i32   :: proc "c" (a, b: i32) -> bool { return a <= b }
+lessThanEqual_u32   :: proc "c" (a, b: u32) -> bool { return a <= b }
+lessThanEqual_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x <= b.x, a.y <= b.y} }
+lessThanEqual_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x <= b.x, a.y <= b.y} }
+lessThanEqual_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x <= b.x, a.y <= b.y} }
+lessThanEqual_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z} }
+lessThanEqual_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z} }
+lessThanEqual_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z} }
+lessThanEqual_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w} }
+lessThanEqual_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w} }
+lessThanEqual_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w} }
+
+
+greaterThan :: proc{
+	greaterThan_f32,
+	greaterThan_i32,
+	greaterThan_u32,
+	greaterThan_vec2,
+	greaterThan_ivec2,
+	greaterThan_uvec2,
+	greaterThan_vec3,
+	greaterThan_ivec3,
+	greaterThan_uvec3,
+	greaterThan_vec4,
+	greaterThan_ivec4,
+	greaterThan_uvec4,
+}
+greaterThan_f32   :: proc "c" (a, b: f32) -> bool { return a > b }
+greaterThan_i32   :: proc "c" (a, b: i32) -> bool { return a > b }
+greaterThan_u32   :: proc "c" (a, b: u32) -> bool { return a > b }
+greaterThan_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x > b.x, a.y > b.y} }
+greaterThan_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x > b.x, a.y > b.y} }
+greaterThan_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x > b.x, a.y > b.y} }
+greaterThan_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x > b.x, a.y > b.y, a.z > b.z} }
+greaterThan_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x > b.x, a.y > b.y, a.z > b.z} }
+greaterThan_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x > b.x, a.y > b.y, a.z > b.z} }
+greaterThan_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w} }
+greaterThan_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w} }
+greaterThan_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w} }
+
+
+greaterThanEqual :: proc{
+	greaterThanEqual_f32,
+	greaterThanEqual_i32,
+	greaterThanEqual_u32,
+	greaterThanEqual_vec2,
+	greaterThanEqual_ivec2,
+	greaterThanEqual_uvec2,
+	greaterThanEqual_vec3,
+	greaterThanEqual_ivec3,
+	greaterThanEqual_uvec3,
+	greaterThanEqual_vec4,
+	greaterThanEqual_ivec4,
+	greaterThanEqual_uvec4,
+}
+greaterThanEqual_f32   :: proc "c" (a, b: f32) -> bool { return a >= b }
+greaterThanEqual_i32   :: proc "c" (a, b: i32) -> bool { return a >= b }
+greaterThanEqual_u32   :: proc "c" (a, b: u32) -> bool { return a >= b }
+greaterThanEqual_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x >= b.x, a.y >= b.y} }
+greaterThanEqual_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x >= b.x, a.y >= b.y} }
+greaterThanEqual_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x >= b.x, a.y >= b.y} }
+greaterThanEqual_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z} }
+greaterThanEqual_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z} }
+greaterThanEqual_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z} }
+greaterThanEqual_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w} }
+greaterThanEqual_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w} }
+greaterThanEqual_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w} }
+
+
+equal :: proc{
+	equal_f32,
+	equal_i32,
+	equal_u32,
+	equal_vec2,
+	equal_ivec2,
+	equal_uvec2,
+	equal_vec3,
+	equal_ivec3,
+	equal_uvec3,
+	equal_vec4,
+	equal_ivec4,
+	equal_uvec4,
+}
+equal_f32   :: proc "c" (a, b: f32) -> bool { return a == b }
+equal_i32   :: proc "c" (a, b: i32) -> bool { return a == b }
+equal_u32   :: proc "c" (a, b: u32) -> bool { return a == b }
+equal_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x == b.x, a.y == b.y} }
+equal_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x == b.x, a.y == b.y} }
+equal_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x == b.x, a.y == b.y} }
+equal_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x == b.x, a.y == b.y, a.z == b.z} }
+equal_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x == b.x, a.y == b.y, a.z == b.z} }
+equal_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x == b.x, a.y == b.y, a.z == b.z} }
+equal_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x == b.x, a.y == b.y, a.z == b.z, a.w == b.w} }
+equal_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x == b.x, a.y == b.y, a.z == b.z, a.w == b.w} }
+equal_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x == b.x, a.y == b.y, a.z == b.z, a.w == b.w} }
+
+notEqual :: proc{
+	notEqual_f32,
+	notEqual_i32,
+	notEqual_u32,
+	notEqual_vec2,
+	notEqual_ivec2,
+	notEqual_uvec2,
+	notEqual_vec3,
+	notEqual_ivec3,
+	notEqual_uvec3,
+	notEqual_vec4,
+	notEqual_ivec4,
+	notEqual_uvec4,
+}
+notEqual_f32   :: proc "c" (a, b: f32) -> bool { return a != b }
+notEqual_i32   :: proc "c" (a, b: i32) -> bool { return a != b }
+notEqual_u32   :: proc "c" (a, b: u32) -> bool { return a != b }
+notEqual_vec2  :: proc "c" (a, b: vec2) -> bvec2 { return {a.x != b.x, a.y != b.y} }
+notEqual_ivec2 :: proc "c" (a, b: ivec2) -> bvec2 { return {a.x != b.x, a.y != b.y} }
+notEqual_uvec2 :: proc "c" (a, b: uvec2) -> bvec2 { return {a.x != b.x, a.y != b.y} }
+notEqual_vec3  :: proc "c" (a, b: vec3) -> bvec3 { return {a.x != b.x, a.y != b.y, a.z != b.z} }
+notEqual_ivec3 :: proc "c" (a, b: ivec3) -> bvec3 { return {a.x != b.x, a.y != b.y, a.z != b.z} }
+notEqual_uvec3 :: proc "c" (a, b: uvec3) -> bvec3 { return {a.x != b.x, a.y != b.y, a.z != b.z} }
+notEqual_vec4  :: proc "c" (a, b: vec4) -> bvec4 { return {a.x != b.x, a.y != b.y, a.z != b.z, a.w != b.w} }
+notEqual_ivec4 :: proc "c" (a, b: ivec4) -> bvec4 { return {a.x != b.x, a.y != b.y, a.z != b.z, a.w != b.w} }
+notEqual_uvec4 :: proc "c" (a, b: uvec4) -> bvec4 { return {a.x != b.x, a.y != b.y, a.z != b.z, a.w != b.w} }
+
+
+any :: proc{
+	any_bool,
+	any_bvec2,
+	any_bvec3,
+	any_bvec4,
+}
+any_bool  :: proc "c" (v: bool) -> bool  { return v }
+any_bvec2 :: proc "c" (v: bvec2) -> bool { return v.x || v.y }
+any_bvec3 :: proc "c" (v: bvec3) -> bool { return v.x || v.y || v.z }
+any_bvec4 :: proc "c" (v: bvec4) -> bool { return v.x || v.y || v.z || v.w }
+
+all :: proc{
+	all_bool,
+	all_bvec2,
+	all_bvec3,
+	all_bvec4,
+}
+all_bool  :: proc "c" (v: bool) -> bool  { return v }
+all_bvec2 :: proc "c" (v: bvec2) -> bool { return v.x && v.y }
+all_bvec3 :: proc "c" (v: bvec3) -> bool { return v.x && v.y && v.z }
+all_bvec4 :: proc "c" (v: bvec4) -> bool { return v.x && v.y && v.z && v.w }
+
+not :: proc{
+	not_bool,
+	not_bvec2,
+	not_bvec3,
+	not_bvec4,
+}
+not_bool  :: proc "c" (v: bool) -> bool { return !v }
+not_bvec2 :: proc "c" (v: bvec2) -> bvec2 { return {!v.x, !v.y} }
+not_bvec3 :: proc "c" (v: bvec3) -> bvec3 { return {!v.x, !v.y, !v.z} }
+not_bvec4 :: proc "c" (v: bvec4) -> bvec4 { return {!v.x, !v.y, !v.z, !v.w} }
+
+
+
 /// Matrix Utilities
 
 identity :: proc "c" ($M: typeid/matrix[$N, N]f32) -> M { return 1 }
