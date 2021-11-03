@@ -46,15 +46,7 @@ foreign webgl2 {
 	Uniform2ui :: proc(location: i32, v0: u32, v1: u32) ---
 	Uniform3ui :: proc(location: i32, v0: u32, v1: u32, v2: u32) ---
 	Uniform4ui :: proc(location: i32, v0: u32, v1: u32, v2: u32, v3: u32) ---
-	
-	// TODO: WRAP THESE
-	// UniformMatrix3x2fv :: proc(location: i32, addr: [^]f32) ---
-	// UniformMatrix4x2fv :: proc(location: i32, addr: [^]f32) ---
-	// UniformMatrix2x3fv :: proc(location: i32, addr: [^]f32) ---
-	// UniformMatrix4x3fv :: proc(location: i32, addr: [^]f32) ---
-	// UniformMatrix2x4fv :: proc(location: i32, addr: [^]f32) ---
-	// UniformMatrix3x4fv :: proc(location: i32, addr: [^]f32) ---
-	
+
 	/* Vertex attribs */
 	VertexAttribI4i      :: proc(index: i32, x, y, z, w: i32) ---
 	VertexAttribI4ui     :: proc(index: i32, x, y, z, w: u32) ---
