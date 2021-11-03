@@ -99,7 +99,7 @@ const runWasm = async () => {
 			data = data.concat(infoConsoleLines[i]);
 		}
 		
-		let info = document.getElementById("info");
+		let info = document.getElementById('console');
 		info.innerHTML = data;
 		info.scrollTop = info.scrollHeight;
 	};
@@ -205,7 +205,7 @@ const runWasm = async () => {
 			},
 		},
 		
-		"math": {
+		"webgl_math": {
 			cos:   (x) => Math.cos(x),
 			sin:   (x) => Math.sin(x),
 			tan:   (x) => Math.tan(x),
@@ -252,7 +252,10 @@ const runWasm = async () => {
 			GetError: () => {
 				let err = GL.lastError;
 				GL.recordError(0);
-				return err;
+				if (err) {
+					return err;
+				}
+				return GL.ctx.getError();
 			},
 			
 			GetWebGLVersion: (major_ptr, minor_ptr) => {
@@ -304,7 +307,7 @@ const runWasm = async () => {
 				// TODO: BindFramebuffer
 			},
 			BindTexture: (target, texture) => {
-				GL.ctx.BindTexture(target, texture ? GL.textures[texture] : null)
+				GL.ctx.bindTexture(target, texture ? GL.textures[texture] : null)
 			},
 			BlendColor: (red, green, blue, alpha) => {
 				GL.ctx.blendColor(red, green, blue, alpha);
@@ -389,7 +392,6 @@ const runWasm = async () => {
 				buffer.name = id
 				GL.buffers[id] = buffer;
 				return id;
-				
 			},
 			CreateFramebuffer: () => {
 				let buffer = GL.ctx.createFramebuffer();
@@ -397,7 +399,6 @@ const runWasm = async () => {
 				buffer.name = id
 				GL.framebuffers[id] = buffer;
 				return id;
-				
 			},
 			CreateProgram: () => {
 				let program = GL.ctx.createProgram();
@@ -1172,7 +1173,7 @@ const runWasm = async () => {
 	const canvasElement = document.querySelector("canvas");
 	GL.ctx = canvasElement.getContext("webgl2", context_settings) || canvasElement.getContext("webgl", context_settings);
 	if (!GL.ctx) {
-		document.getElementById('info').innerHTML = 'WebGL is not available.';
+		document.getElementById('console').innerHTML = 'WebGL is not available.';
 		return;
 	}
 	if (GL.ctx.getParameter(0x1F02).indexOf("WebGL 2.0") !== -1) {

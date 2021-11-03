@@ -83,7 +83,7 @@ foreign webgl {
 	FramebufferTexture2D    :: proc(target, attachment, textarget: Enum, texture: Texture, level: i32) ---
 	FrontFace               :: proc(mode: Enum) ---
 	
-	GenerateMipmaps :: proc(target: Enum) ---
+	GenerateMipmap :: proc(target: Enum) ---
 	
 	GetAttribLocation     :: proc(program: Program, name: string) -> i32 ---
 	GetUniformLocation    :: proc(program: Program, name: string) -> i32 ---
