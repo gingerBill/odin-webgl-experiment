@@ -233,21 +233,122 @@ const runWasm = async () => {
 		},
 		
 		"gl": {
+			DrawingBufferWidth:  () => GL.ctx.drawingBufferWidth,
+			DrawingBufferHeight: () => GL.ctx.drawingBufferHeight,
+			
+			IsExtensionSupported: (name_ptr, name_len) => {
+				let name = loadString(name_ptr, name_len);
+				let extensions = GL.ctx.getSupportedExtensions();
+				return extensions.indexOf(name) !== -1
+			},
+			
+			
 			GetError: () => {
 				let err = GL.lastError;
 				GL.recordError(0);
 				return err;
 			},
 			
+			
+			ActiveTexture: (x) => {
+				GL.ctx.activeTexture(x);
+			},
+			AttachShader: (program, shader) => {
+				GL.ctx.attachShader(GL.programs[program], GL.shaders[shader]);
+			},
+			BindAttribLocation: (program, index, name_ptr, name_len) => {
+				let name = loadString(name_ptr, name_len);
+				GL.ctx.bindAttribLocation(GL.programs[program], index, name)
+			},
+			BindBuffer: (target, buffer) => {
+				let bufferObj = buffer ? GL.buffers[buffer] : null;
+				if (target == 35051) {
+					GL.ctx.currentPixelPackBufferBinding = buffer;
+				} else {
+					if (target == 35052) {
+						GL.ctx.currentPixelUnpackBufferBinding = buffer;
+					}
+					GL.ctx.bindBuffer(target, bufferObj)
+				}
+			},
+			BindFramebuffer: (target, buffer) => {
+				// TODO: BindFramebuffer
+			},
+			BindTexture: (target, texture) => {
+				GL.ctx.BindTexture(target, texture ? GL.textures[texture] : null)
+			},
+			BlendColor: (red, green, blue, alpha) => {
+				GL.ctx.blendColor(red, green, blue, alpha);
+			},
+			BlendEquation: (mode) => {
+				GL.ctx.blendEquation(mode);
+			},
+			BlendFunc: (sfactor, dfactor) => {
+				GL.ctx.blendFunc(sfactor, dfactor);
+			},
+			BlendFuncSeparate: (srcRGB, dstRGB, srcAlpha, dstAlpha) => {
+				GL.ctx.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+			},
+			
+			
+			BufferData: (target, size, data, usage) => {
+				if (data) {
+					GL.ctx.bufferData(target, loadBytes(data, size), usage);
+				} else {
+					GL.ctx.bufferData(target, size, usage);
+				}
+			},
+			BufferSubData: (target, offset, size, data) => {
+				if (data) {
+					GL.ctx.bufferSubData(target, offset, loadBytes(data, size));
+				} else {
+					GL.ctx.bufferSubData(target, offset, null);
+				}
+			},
+			
+			
 			Clear: (x) => {
 				GL.ctx.clear(x);
-			},
-			Viewport: (x, y, w, h) => {
-				GL.ctx.viewport(x, y, w, h);
 			},
 			ClearColor: (r, g, b, a) => {
 				GL.ctx.clearColor(r, g, b, a);
 			},
+			ClearDepth: (x) => {
+				GL.ctx.clearDepth(x);
+			},
+			ClearStencil: (x) => {
+				GL.ctx.clearStencil(x);
+			},
+			ColorMask: (r, g, b, a) => {
+				GL.ctx.colorMask(!!r, !!g, !!b, !!a);
+			},
+			CompileShader: (shader) => {
+				GL.ctx.compileShader(GL.shaders[shader]);
+			},
+			
+			
+			CompressedTexImage2D: (target, level, internalformat, width, height, border, imageSize, data) => {
+				if (data) {
+					GL.ctx.compressedTexImage2D(target, level, internalformat, width, height, border, loadBytes(data, imageSize));
+				} else {
+					GL.ctx.compressedTexImage2D(target, level, internalformat, width, height, border, null);
+				}
+			},
+			CompressedTexSubImage2D: (target, level, xoffset, yoffset, width, height, format, imageSize, data) => {
+				if (data) {
+					GL.ctx.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, loadBytes(data, imageSize));
+				} else {
+					GL.ctx.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, null);
+				}
+			},
+			
+			CopyTexImage2D: (target, level, internalformat, x, y, width, height, border) => {
+				GL.ctx.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
+			},
+			CopyTexSubImage2D: (target, level, xoffset, yoffset, width, height) => {
+				GL.ctx.copyTexImage2D(target, level, xoffset, yoffset, width, height);
+			},
+			
 			
 			CreateBuffer: () => {
 				let buffer = GL.ctx.createBuffer();
@@ -261,98 +362,186 @@ const runWasm = async () => {
 				return id;
 				
 			},
-			GenBuffers: (n, buffers) => {
-				for (let i = 0; i < n; i++) {
-					let buffer = GL.ctx.createBuffer();
-					if (!buffer) {
-						GL.recordError(1282);
-						for (; i < n; i++) {
-							storeU32(buffers + i*4, 0);
-						}
-						return;
-					}
-					let id = GL.getNewId(GL.buffers);
-					buffer.name = id
-					GL.buffers[id] = buffer;
-					storeU32(buffers + i*4, id);
-				}
+			CreateFramebuffer: () => {
+				let buffer = GL.ctx.createFramebuffer();
+				let id = GL.getNewId(GL.framebuffers);
+				buffer.name = id
+				GL.framebuffers[id] = buffer;
+				return id;
+				
 			},
-			BindBuffer: (target, buffer) => {
-				let bufferObj = buffer ? GL.buffers[buffer] : null;
-				if (target == 35051) {
-					GL.ctx.currentPixelPackBufferBinding = buffer;
-				} else {
-					if (target == 35052) {
-						GL.ctx.currentPixelUnpackBufferBinding = buffer;
-					}
-					GL.ctx.bindBuffer(target, bufferObj)
-				}
+			CreateProgram: () => {
+				let program = GL.ctx.createProgram();
+				let id = GL.getNewId(GL.programs);
+				program.name = id;
+				GL.programs[id] = program;
+				return id;
 			},
-			BufferData: (target, size, data, usage) => {
-				if (data) {
-					GL.ctx.bufferData(target, loadBytes(data, size), usage)
-				} else {
-					GL.ctx.bufferData(target, size, usage);
+			CreateRenderbuffer: () => {
+				let buffer = GL.ctx.createRenderbuffer();
+				let id = GL.getNewId(GL.renderbuffers);
+				buffer.name = id;
+				GL.renderbuffers[id] = buffer;
+				return id;
+			},
+			CreateShader: (shaderType) => {
+				let shader = GL.ctx.createShader(shaderType);
+				let id = GL.getNewId(GL.shaders);
+				shader.name = id;
+				GL.shaders[id] = shader;
+				return id;
+			},
+			CreateTexture: () => {
+				let texture = GL.ctx.createTexture();
+				if (!texture) {
+					GL.recordError(1282)
+					return 0;
 				}
+				let id = GL.getNewId(GL.textures);
+				texture.name = id;
+				GL.textures[id] = texture;
+				return id;
 			},
 			
 			
-			LinkProgram: (program) => {
-				GL.ctx.linkProgram(GL.programs[program]);
-				GL.programInfos[program] = null;
-				GL.populateUniformTable(program);
+			CullFace: (mode) => {
+				GL.ctx.cullFace(mode);
 			},
-			ShaderSource: (shader, strings_ptr, strings_length) => {
-				let source = GL.getSource(shader, strings_ptr, strings_length);
-				GL.ctx.shaderSource(GL.shaders[shader], source);
+			
+			
+			DeleteBuffer: (id) => {
+				let obj = GL.buffers[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteBuffer(obj);
+					GL.buffers[id] = null;
+				}
+			},
+			DeleteFramebuffer: (id) => {
+				let obj = GL.framebuffers[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteFramebuffer(obj);
+					GL.framebuffers[id] = null;
+				}
+			},
+			DeleteProgram: (id) => {
+				let obj = GL.programs[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteProgram(obj);
+					GL.programs[id] = null;
+				}
+			},
+			DeleteRenderbuffer: (id) => {
+				let obj = GL.renderbuffers[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteRenderbuffer(obj);
+					GL.renderbuffers[id] = null;
+				}
+			},
+			DeleteShader: (id) => {
+				let obj = GL.shaders[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteShader(obj);
+					GL.shaders[id] = null;
+				}
+			},
+			DeleteTexture: (id) => {
+				let obj = GL.textures[id];
+				if (obj && id != 0) {
+					GL.ctx.deleteTexture(obj);
+					GL.textures[id] = null;
+				}
+			},
+
+
+			DepthFunc: (func) => {
+				GL.ctx.depthFunc(func);
+			},
+			DepthMask: (flag) => {
+				GL.ctx.depthMask(!!flag);
+			},
+			DepthRange: (zNear, zFar) => {
+				GL.ctx.depthRange(zNear, zFar);
+			},
+			DetachShader: (program, shader) => {
+				GL.ctx.detachShader(GL.programs[program], GL.shaders[shader]);
+			},
+			Disable: (cap) => {
+				GL.ctx.disable(cap);
+			},
+			DisableVertexAttribArray: (index) => {
+				GL.ctx.disableVertexAttribArray(index);
+			},
+			DrawArrays: (mode, first, count) => {
+				GL.ctx.drawArrays(mode, first, count);
+			},
+			DrawElements: (mode, count, type, indices) => {
+				GL.ctx.DrawElements(mode, count, type, indices);
+			},
+			
+			
+			Enable: (cap) => {
+				GL.ctx.enable(cap);
 			},
 			EnableVertexAttribArray: (index) => {
 				GL.ctx.enableVertexAttribArray(index);
 			},
+			Finish: () => {
+				GL.ctx.finish();
+			},
+			Flush: () => {
+				GL.ctx.flush();
+			},
+			FramebufferRenderBuffer: (target, attachment, renderbuffertarget, renderbuffer) => {
+				GL.ctx.framebufferRenderBuffer(target, attachment, renderbuffertarget, GL.renderbuffers[renderbuffer]);
+			},
+			FramebufferTexture2D: (target, attachment, textarget, texture, level) => {
+				GL.ctx.framebufferTexture2D(target, attachment, textarget, GL.textures[texture], level);
+			},
+			FrontFace: (mode) => {
+				GL.ctx.frontFace(mode);
+			},
+			
+				
+			GenerateMipmap: (target) => {
+				GL.ctx.generateMipmap(target);
+			},
+			
+			
 			GetAttribLocation: (program, name_ptr, name_len) => {
 				let name = loadString(name_ptr, name_len);
 				return GL.ctx.getAttribLocation(GL.programs[program], name);
 			},
 			
-			GetUniformLocation: (program, name_ptr, name_len) => {
-				let name = loadString(name_ptr, name_len);
-				let arrayOffset = 0;
-				if (name.indexOf("]", name.length - 1) !== -1) {
-					let ls = name.lastIndexOf("["),
-					arrayIndex = name.slice(ls + 1, -1);
-					if (arrayIndex.length > 0 && (arrayOffset = parseInt(arrayIndex)) < 0) {
-						return -1;
-					}
-					name = name.slice(0, ls)
-				}
-				var ptable = GL.programInfos[program];
-				if (!ptable) {
-					return -1;
-				}
-				var uniformInfo = ptable.uniforms[name];
-				return (uniformInfo && arrayOffset < uniformInfo[0]) ? uniformInfo[1] + arrayOffset : -1
-			},
 			
-			AttachShader: (program, shader) => {
-				GL.ctx.attachShader(GL.programs[program], GL.shaders[shader]);
+			
+			GetProgramParameter: (program, pname) => {
+				return GL.ctx.getProgramParameter(GL.programs[program], pname)
 			},
-			CompileShader: (shader) => {
-				GL.ctx.compileShader(GL.shaders[shader]);
+			GetProgramInfoLog: (program, buf_ptr, buf_len, length_ptr) => {
+				let log = GL.ctx.getProgramInfoLog(GL.programs[program]);
+				if (log === null) {
+					log = "(unknown error)";
+				}
+				if (buf_len > 0 && buf_ptr) {
+					let n = Math.min(buf_len, log.length);
+					log = log.substring(0, n);
+					loadBytes(buf_ptr, buf_len).set(new TextEncoder('utf-8').encode(log))
+					
+					storeInt(length_ptr, n);
+				}
 			},
-			CreateShader: (shaderType) => {
-				let id = GL.getNewId(GL.shaders);
-				GL.shaders[id] = GL.ctx.createShader(shaderType);
-				return id;
-			},
-			CreateProgram: () => {
-				let id = GL.getNewId(GL.programs);
-				let program = GL.ctx.createProgram();
-				program.name = id;
-				GL.programs[id] = program;
-				return id;
-			},
-			ValidateProgram: (program) => {
-				GL.ctx.validateProgram(GL.programs[program]);
+			GetShaderInfoLog: (shader, buf_ptr, buf_len, length_ptr) => {
+				let log = GL.ctx.getShaderInfoLog(GL.shaders[shader]);
+				if (log === null) {
+					log = "(unknown error)";
+				}
+				if (buf_len > 0 && buf_ptr) {
+					let n = Math.min(buf_len, log.length);
+					log = log.substring(0, n);
+					loadBytes(buf_ptr, buf_len).set(new TextEncoder('utf-8').encode(log))
+					
+					storeInt(length_ptr, n);
+				}
 			},
 			GetShaderiv: (shader, pname, p) => {
 				if (p) {
@@ -374,55 +563,112 @@ const runWasm = async () => {
 					GL.recordError(1281);
 				}
 			},
-			DetachShader: (program, shader) => {
-				GL.ctx.detachShader(GL.programs[program], GL.shaders[shader]);
-			},
-			DeleteShader: (shader) => {
-				GL.ctx.deleteShader(GL.shaders[shader]);
-			},
-			DeleteProgram: (program) => {
-				GL.ctx.deleteProgram(GL.programs[program]);
-			},
-			GetProgramParameter: (program, pname) => {
-				return GL.ctx.getProgramParameter(GL.programs[program], pname)
-			},
-			UseProgram: (program) => {
-				GL.ctx.useProgram(GL.programs[program]);
-			},
-			GetShaderInfoLog: (shader, buf_ptr, buf_len, length_ptr) => {
-				let log = GL.ctx.getShaderInfoLog(GL.shaders[shader]);
-				if (log === null) {
-					log = "(unknown error)";
+			
+			
+			GetUniformLocation: (program, name_ptr, name_len) => {
+				let name = loadString(name_ptr, name_len);
+				let arrayOffset = 0;
+				if (name.indexOf("]", name.length - 1) !== -1) {
+					let ls = name.lastIndexOf("["),
+					arrayIndex = name.slice(ls + 1, -1);
+					if (arrayIndex.length > 0 && (arrayOffset = parseInt(arrayIndex)) < 0) {
+						return -1;
+					}
+					name = name.slice(0, ls)
 				}
-				if (buf_len > 0 && buf_ptr) {
-					let n = Math.min(buf_len, log.length);
-					log = log.substring(0, n);
-					loadBytes(buf_ptr, buf_len).set(new TextEncoder('utf-8').encode(log))
-					
-					storeInt(length_ptr, n);
+				var ptable = GL.programInfos[program];
+				if (!ptable) {
+					return -1;
 				}
-			},
-			GetProgramInfoLog: (program, buf_ptr, buf_len, length_ptr) => {
-				let log = GL.ctx.getProgramInfoLog(GL.programs[program]);
-				if (log === null) {
-					log = "(unknown error)";
-				}
-				if (buf_len > 0 && buf_ptr) {
-					let n = Math.min(buf_len, log.length);
-					log = log.substring(0, n);
-					loadBytes(buf_ptr, buf_len).set(new TextEncoder('utf-8').encode(log))
-					
-					storeInt(length_ptr, n);
-				}
+				var uniformInfo = ptable.uniforms[name];
+				return (uniformInfo && arrayOffset < uniformInfo[0]) ? uniformInfo[1] + arrayOffset : -1
 			},
 			
-			BindAttribLocation: (program, index, name_ptr, name_len) => {
-				let name = loadString(name_ptr, name_len);
-				GL.ctx.bindAttribLocation(GL.programs[program], index, name)
+			
+			GetVertexAttribOffset: (index, pname) => {
+				return GL.ctx.getVertexAttribOffset(index, pname);
 			},
-			VertexAttribPointer: (index, size, type, normalized, stride, ptr) => {
-				GL.ctx.vertexAttribPointer(index, size, type, !!normalized, stride, ptr);
+			
+			
+			Hint: (target, mode) => {
+				GL.ctx.hint(target, mode);
 			},
+			
+			
+			IsBuffer:       (buffer)       => GL.ctx.isBuffer(GL.buffers[buffer]),
+			IsEnabled:      (enabled)      => GL.ctx.isEnabled(GL.enableds[enabled]),
+			IsFramebuffer:  (framebuffer)  => GL.ctx.isFramebuffer(GL.framebuffers[framebuffer]),
+			IsProgram:      (program)      => GL.ctx.isProgram(GL.programs[program]),
+			IsRenderbuffer: (renderbuffer) => GL.ctx.isRenderbuffer(GL.renderbuffers[renderbuffer]),
+			IsShader:       (shader)       => GL.ctx.isShader(GL.shaders[shader]),
+			IsTexture:      (texture)      => GL.ctx.isTexture(GL.textures[texture]),
+			
+			LineWidth: (width) => {
+				GL.ctx.lineWidth(width);
+			},
+			LinkProgram: (program) => {
+				GL.ctx.linkProgram(GL.programs[program]);
+				GL.programInfos[program] = null;
+				GL.populateUniformTable(program);
+			},
+			PixelStorei: (pname, param) => {
+				GL.ctx.pixelStorei(pname, param);
+			},
+			PolygonOffset: (factor, units) => {
+				GL.ctx.polygonOffset(factor, units);
+			},
+			
+			
+			ReadnPixels: (x, y, width, height, format, type, bufSize, data) => {
+				GL.ctx.readPixels(x, y, width, format, type, loadBytes(data, bufSize));
+			},
+			RenderbufferStorage: (target, internalformat, width, height) => {
+				GL.ctx.renderbufferStorage(target, internalformat, width, height);
+			},
+			SampleCoverage: (value, invert) => {
+				GL.ctx.sampleCoverage(value, !!invert);
+			},
+			Scissor: (x, y, width, height) => {
+				GL.ctx.scissor(x, y, width, height);
+			},
+			ShaderSource: (shader, strings_ptr, strings_length) => {
+				let source = GL.getSource(shader, strings_ptr, strings_length);
+				GL.ctx.shaderSource(GL.shaders[shader], source);
+			},
+			
+			StencilFunc: (func, ref, mask) => {
+				GL.ctx.stencilFunc(func, ref, mask);
+			},
+			StencilFuncSeparate: (face, func, ref, mask) => {
+				GL.ctx.stencilFuncSeparate(face, func, ref, mask);
+			},
+			StencilMask: (mask) => {
+				GL.ctx.stencilMask(mask);
+			},
+			StencilMaskSeparate: (face, mask) => {
+				GL.ctx.stencilMaskSeparate(face, mask);
+			},
+			StencilOp: (fail, zfail, zpass) => {
+				GL.ctx.stencilOp(fail, zfail, zpass);
+			},
+			StencilOpSeparate: (face, fail, zfail, zpass) => {
+				GL.ctx.stencilOpSeparate(face, fail, zfail, zpass);
+			},
+			
+			
+			TexImage2D: (target, level, internalformat, width, height, border, format, type, size, data) => {
+				GL.ctx.texImage2D(target, level, internalformat, width, height, border, format, type, loadBytes(data, size));
+			},
+			TexParameterf: (target, pname, param) => {
+				GL.ctx.texParameterf(target, pname, param);
+			},
+			TexParameteri: (target, pname, param) => {
+				GL.ctx.texParameteri(target, pname, param);
+			},
+			TexSubImage2D: (target, level, xoffset, yoffset, width, height, format, type, size, data) => {
+				GL.ctx.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, loadBytes(data, size));
+			},
+			
 			
 			Uniform1f: (location, v0)             => { GL.ctx.uniform1f(GL.uniforms[location], v0);             },
 			Uniform2f: (location, v0, v1)         => { GL.ctx.uniform2f(GL.uniforms[location], v0, v1);         },
@@ -447,49 +693,32 @@ const runWasm = async () => {
 				GL.ctx.uniformMatrix4fv(GL.uniforms[location], false, array);
 			},
 			
-			CreateTexture: () => {
-				let texture = GL.ctx.createTexture();
-				if (!texture) {
-					GL.recordError(1282)
-					return 0;
-				}
-				let id = GL.getNewId(GL.textures);
-				texture.name = id;
-				GL.textures[id] = texture;
-				return id;
+			UseProgram: (program) => {
+				GL.ctx.useProgram(GL.programs[program]);
 			},
-			GenTextures: (n, textures) => {
-				for (let i = 0; i < n; i++)	{
-					let texture = GL.ctx.createTexture();
-					if (!texture) {
-						GL.recordError(1282);
-						for (; i < n; i++) {
-							storeU32(textures + i*4, 0);
-						}
-						return;
-					}
-					let id = GL.getNewId(GL.textures);
-					texture.name = id;
-					GL.textures[id] = texture;
-					storeU32(textures + i*4, id);
-				}
-			},
-			ActiveTexture: (x) => {
-				GL.ctx.activeTexture(x);
-			},
-			BindTexture: (target, texture) => {
-				GL.ctx.BindTexture(target, texture ? GL.textures[texture] : null)
-			},
-			TexParameteri: (x0, x1, x2) => {
-				GL.ctx.texParameteri(x0, x1, x2);
+			ValidateProgram: (program) => {
+				GL.ctx.validateProgram(GL.programs[program]);
 			},
 			
 			
-			DrawElements: (mode, count, type, indices) => {
-				GL.ctx.DrawElements(mode, count, type, indices);
+			VertexAttrib1f: (index, x) => {
+				GL.ctx.vertexAttrib1f(index, x);
 			},
-			DrawArrays: (mode, first, count) => {
-				GL.ctx.drawArrays(mode, first, count);
+			VertexAttrib2f: (index, x, y) => {
+				GL.ctx.vertexAttrib2f(index, x, y);
+			},
+			VertexAttrib3f: (index, x, y, z) => {
+				GL.ctx.vertexAttrib3f(index, x, y, z);
+			},
+			VertexAttrib4f: (index, x, y, z, w) => {
+				GL.ctx.vertexAttrib4f(index, x, y, z, w);
+			},
+			VertexAttribPointer: (index, size, type, normalized, stride, ptr) => {
+				GL.ctx.vertexAttribPointer(index, size, type, !!normalized, stride, ptr);
+			},
+			
+			Viewport: (x, y, w, h) => {
+				GL.ctx.viewport(x, y, w, h);
 			},
 		},
 	};
