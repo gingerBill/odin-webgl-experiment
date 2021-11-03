@@ -227,7 +227,7 @@ CompressedTexSubImage2DSlice :: proc "c" (target: u32, level: i32, xoffset, yoff
 	CompressedTexSubImage2DSlice(target, level, level, xoffset, yoffset, width, height, format, len(slice)*size_of(E), raw_data(slice))
 }
 
-ReadPixelsSlice :: proc(x, y, width, height: i32, format: u32, type: u32, slice: $S/[]$E) {
+ReadPixelsSlice :: proc "c" (x, y, width, height: i32, format: u32, type: u32, slice: $S/[]$E) {
 	ReadnPixels(x, y, width, height, format, type, len(slice)*size_of(E), raw_data(slice))
 }
 
