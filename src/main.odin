@@ -65,6 +65,10 @@ main :: proc() {
 
 	println("Hellope!")
 	
+	gl.Enable(gl.DEPTH_TEST)
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	
 	vs := gl.CreateShader(gl.VERTEX_SHADER)
 	fs := gl.CreateShader(gl.FRAGMENT_SHADER)
 	gl.ShaderSource(vs, {vertex_source})
@@ -105,10 +109,6 @@ main :: proc() {
 	}
 	
 	gl.UseProgram(program)
-
-	gl.Enable(gl.TEXTURE_2D)
-	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	
 	header := (^BMP_Header)(&dog_bmp[0])
 	image_width := i32(header.width)
@@ -141,10 +141,10 @@ main :: proc() {
 	vertex_buffer = gl.CreateBuffer()
 	gl.BindBuffer(gl.ARRAY_BUFFER, vertex_buffer)
 	gl.BufferDataSlice(gl.ARRAY_BUFFER, []Vertex{
-		{{-0.5, +0.5, 0}, {1.0, 0.0, 0.0, 1.0}, {0, 1}},
-		{{-0.5, -0.5, 0}, {1.0, 1.0, 0.0, 1.0}, {0, 0}},
-		{{+0.5, -0.5, 0}, {0.0, 1.0, 0.0, 1.0}, {1, 0}},
-		{{+0.5, +0.5, 0}, {0.0, 0.0, 1.0, 1.0}, {1, 1}},
+		{{-0.5, +0.5, 0}, {1.0, 0.0, 0.0, 0.75}, {0, 1}},
+		{{-0.5, -0.5, 0}, {1.0, 1.0, 0.0, 0.75}, {0, 0}},
+		{{+0.5, -0.5, 0}, {0.0, 1.0, 0.0, 0.75}, {1, 0}},
+		{{+0.5, +0.5, 0}, {0.0, 0.0, 1.0, 0.75}, {1, 1}},
 	}, gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(a_position)
 	gl.EnableVertexAttribArray(a_color)
@@ -169,22 +169,28 @@ step :: proc(dt: f64) {
 	gl.Viewport(0, 0, 640, 480)
 	gl.ClearColor(0.5, 0.7, 1.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	
 		
-	// model := gl.mat4Translate({
-	// 	0.3*gl.cos(f32(total_time*3)),	
-	// 	0.3*gl.sin(f32(total_time*3)),
-	// 	0.5*gl.sin(f32(total_time*5)),
-	// })
-	model := gl.mat4Rotate({0, 1, 1}, f32(total_time))
-	
 	view := gl.mat4LookAt(gl.vec3{0, -1, +1}, {0, 0, 0}, {0, 0, 1})
 	proj := gl.mat4Perspective(45, 1.3, 0.1, 100.0)
 		
-	gl.UniformMatrix4fv(
-		gl.GetUniformLocation(program, "u_transform"), 
-		proj * view * model,
-	)
-		
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, nil)
+	{
+		model := gl.mat4Rotate({0, 1, 1}, f32(total_time))
+					
+		gl.UniformMatrix4fv(
+			gl.GetUniformLocation(program, "u_transform"),
+			proj * view * model,
+		)
+			
+		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, nil)
+	}
+	{
+		model := gl.mat4Rotate({1, 1, 0}, f32(total_time)*3) * gl.mat4Translate({0, 0, 0.5})
+			
+		gl.UniformMatrix4fv(
+			gl.GetUniformLocation(program, "u_transform"), 
+			proj * view * model,
+		)
+			
+		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, nil)
+	}
 }
