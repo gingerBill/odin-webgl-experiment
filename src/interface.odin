@@ -5,12 +5,12 @@ import "core:io"
 import "core:fmt"
 import "core:time"
 
-foreign import "env"
+foreign import "odin_env"
 foreign import "gl"
 
 
 @(default_calling_convention="c")
-foreign env {
+foreign odin_env {
 	write :: proc(fd: u32, p: []byte) ---
 	alert :: proc(s: string) ---
 	trap  :: proc() -> ! ---

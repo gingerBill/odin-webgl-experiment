@@ -38,6 +38,7 @@ void main() {
 
 program: gl.Program
 vertex_buffer: gl.Buffer
+index_buffer: gl.Buffer
 tex: gl.Texture
 
 dog_bmp := #load("dog.bmp")
@@ -143,10 +144,7 @@ main :: proc() {
 		{{-0.5, +0.5, 0}, {1.0, 0.0, 0.0, 1.0}, {0, 1}},
 		{{-0.5, -0.5, 0}, {1.0, 1.0, 0.0, 1.0}, {0, 0}},
 		{{+0.5, -0.5, 0}, {0.0, 1.0, 0.0, 1.0}, {1, 0}},
-		
-		{{+0.5, -0.5, 0}, {0.0, 1.0, 0.0, 1.0}, {1, 0}},
 		{{+0.5, +0.5, 0}, {0.0, 0.0, 1.0, 1.0}, {1, 1}},
-		{{-0.5, +0.5, 0}, {1.0, 0.0, 0.0, 1.0}, {0, 1}},
 	}, gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(a_position)
 	gl.EnableVertexAttribArray(a_color)
@@ -154,6 +152,13 @@ main :: proc() {
 	gl.VertexAttribPointer(a_position, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, pos))
 	gl.VertexAttribPointer(a_color,    4, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, col))
 	gl.VertexAttribPointer(a_uv,       2, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, uv))
+
+	index_buffer = gl.CreateBuffer()
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer)
+	gl.BufferDataSlice(gl.ELEMENT_ARRAY_BUFFER, []u16{
+		0, 1, 2,
+		2, 3, 0,
+	}, gl.STATIC_DRAW)
 }
 
 @(export)
@@ -171,7 +176,7 @@ step :: proc(dt: f64) {
 	// 	0.3*gl.sin(f32(total_time*3)),
 	// 	0.5*gl.sin(f32(total_time*5)),
 	// })
-	model := gl.mat4Rotate({0, 0, 1}, f32(total_time))
+	model := gl.mat4Rotate({0, 1, 1}, f32(total_time))
 	
 	view := gl.mat4LookAt(gl.vec3{0, -1, +1}, {0, 0, 0}, {0, 0, 1})
 	proj := gl.mat4Perspective(45, 1.3, 0.1, 100.0)
@@ -181,5 +186,5 @@ step :: proc(dt: f64) {
 		proj * view * model,
 	)
 		
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, nil)
 }

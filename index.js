@@ -182,7 +182,7 @@ const runWasm = async () => {
 	}
 	
 	const imports = {
-		"env": {
+		"odin_env": {
 			write: (fd, ptr, len) => {
 				const str = loadString(ptr, len);
 				if (fd == 1) {
@@ -505,7 +505,7 @@ const runWasm = async () => {
 				GL.ctx.drawArrays(mode, first, count);
 			},
 			DrawElements: (mode, count, type, indices) => {
-				GL.ctx.DrawElements(mode, count, type, indices);
+				GL.ctx.drawElements(mode, count, type, indices);
 			},
 			
 			
